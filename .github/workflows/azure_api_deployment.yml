@@ -7,18 +7,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-2019
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
-    - name: Set up PowerShell
-      uses: actions/setup-powershell@v2
-      with:
-        pwsh-version: '7.x'
-
-    - name: Execute PowerShell script
-      run: |
+    - run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
