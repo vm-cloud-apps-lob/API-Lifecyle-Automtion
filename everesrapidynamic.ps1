@@ -9,6 +9,12 @@ try {
     exit 1
 }
 
+# Check if $configContent is not null before proceeding
+if ($null -eq $configContent) {
+    Write-Error "Failed to download the configuration file. The content is null."
+    exit 1
+}
+
 # Convert the configuration content into an array of lines
 $config = $configContent -split [Environment]::NewLine | ForEach-Object {
     $key, $value = $_ -split "="
@@ -17,6 +23,7 @@ $config = $configContent -split [Environment]::NewLine | ForEach-Object {
         Value = $value.Trim()
     }
 }
+
 
 # Access values from the configuration object
 $subscriptionId = $config | Where-Object { $_.Key -eq "SubscriptionId" } | Select-Object -ExpandProperty Value
