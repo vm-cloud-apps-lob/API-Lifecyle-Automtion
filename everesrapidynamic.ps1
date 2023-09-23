@@ -1,8 +1,16 @@
-﻿# Define the path to your configuration file
-$configFile = "C:\Users\VMADMIN\POC\config.txt"
+# Define the path to your configuration file
+$configFileUrl = "https://raw.githubusercontent.com/vamsi560/everest/main/config.txt"
 
-# Read values from the configuration file
-$config = Get-Content -Path $configFile | ForEach-Object {
+# Download the configuration file from the URL
+try {
+    $configContent = Invoke-RestMethod -Uri $configFileUrl -ErrorAction Stop
+} catch {
+    Write-Error "Failed to download the configuration file. Error: $_"
+    exit 1
+}
+
+# Convert the configuration content into an array of lines
+$config = $configContent -split [Environment]::NewLine | ForEach-Object {
     $key, $value = $_ -split "="
     [PSCustomObject]@{
         Key = $key.Trim()
