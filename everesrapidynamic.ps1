@@ -1,29 +1,14 @@
 # Define the path to your configuration file
-$configFileUrl = "https://raw.githubusercontent.com/vamsi560/everest/main/config.txt"
+$configFile = "$env:GITHUB_WORKSPACE\config.txt"
 
-# Download the configuration file from the URL
-try {
-    $configContent = Invoke-RestMethod -Uri $configFileUrl -ErrorAction Stop
-} catch {
-    Write-Error "Failed to download the configuration file. Error: $_"
-    exit 1
-}
-
-# Check if $configContent is not null before proceeding
-if ($null -eq $configContent) {
-    Write-Error "Failed to download the configuration file. The content is null."
-    exit 1
-}
-
-# Convert the configuration content into an array of lines
-$config = $configContent -split [Environment]::NewLine | ForEach-Object {
+# Read values from the configuration file
+$config = Get-Content -Path $configFile | ForEach-Object {
     $key, $value = $_ -split "="
     [PSCustomObject]@{
         Key = $key.Trim()
         Value = $value.Trim()
     }
 }
-
 
 # Access values from the configuration object
 $subscriptionId = $config | Where-Object { $_.Key -eq "SubscriptionId" } | Select-Object -ExpandProperty Value
