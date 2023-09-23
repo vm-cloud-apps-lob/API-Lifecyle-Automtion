@@ -1,4 +1,4 @@
-name: Azure API Deployment
+name: CI/CD Workflow
 
 on:
   push:
@@ -6,19 +6,19 @@ on:
       - main
 
 jobs:
-  deploy:
-    runs-on: windows-latest
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Set up PowerShell
+      uses: actions/setup-powershell@v2
+      with:
+        pwsh-version: '7.x'
 
-      - name: Set up PowerShell
-        uses: PowerShell/setup-powershell@v1
-        with:
-          pwsh-version: '7.x'
-
-      - name: Execute PowerShell script
-        run: |
-          .\everesrapidynamic.ps1
-        env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Execute PowerShell script
+      run: |
+        # Run your PowerShell script
+        .\everesrapidynamic.ps1
