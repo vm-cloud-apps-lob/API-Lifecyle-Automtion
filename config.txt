@@ -4,6 +4,6 @@ ApiName=everest-backoffice-testapi5
 SpecificationUrl=https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml
 ApiId=everest-backoffice-testapi5
 ApimName=everest-apim-demo
-ApiPolicyConfigFilePath =policies.xml
+ApiPolicyConfigFilePath=policies.xml
 ApiVisibility=Partner
 PostmanCollectionFilePath=Swagger Petstore - OpenAPI 3.0.postman_test_run.json
