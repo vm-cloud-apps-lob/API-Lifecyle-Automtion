@@ -19,7 +19,6 @@ $apiId = $config | Where-Object { $_.Key -eq "ApiId" } | Select-Object -ExpandPr
 $apimName = $config | Where-Object { $_.Key -eq "ApimName" } | Select-Object -ExpandProperty Value
 $apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigFilePath" } | Select-Object -ExpandProperty Value
 $apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-Object -ExpandProperty Value
-$swagger2postmanPath = $config | Where-Object { $_.Key -eq "Swagger2PostmanPath" } | Select-Object -ExpandProperty Value
 $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
 # Authenticate with your Azure account
@@ -46,19 +45,5 @@ az apim api update --resource-group $resourceGroupName --service-name $apimName 
 
 # Associate the API with the existing product "Unlimited"
 az apim product api add --resource-group $resourceGroupName --service-name $apimName --product-id "Unlimited" --api-id $apiId
-
-# Step 6: Testing and Postman Collection Generation
-# Execute Swagger2Postman to convert OAS to Postman collection
-Start-Process -FilePath $swagger2postmanPath -ArgumentList "convert -i $specificationUrl -o $postmanCollectionFilePath"
-
-# Wait for the process to complete (adjust the timeout as needed)
-Start-Sleep -Seconds 5
-
-# Optionally, you can check if the output file exists to ensure successful conversion
-if (Test-Path $postmanCollectionFilePath) {
-    Write-Output "Postman collection generated successfully."
-} else {
-    Write-Output "Failed to generate Postman collection."
-}
 
 Write-Output "Script execution completed."
