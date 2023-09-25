@@ -18,5 +18,5 @@ jobs:
     - name: Generate Postman Collection
       uses: fluximus-prime/openapi-to-postman-action@v1.0.1
       with:
-        openapi_url: https://raw.githubusercontent.com/vamsi560/everest/main/openapi.yaml
+        openapi_url: openapi.yaml
         output_file: postman-collection.json
