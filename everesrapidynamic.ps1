@@ -22,7 +22,7 @@ $apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-
 $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
 # Authenticate with your Azure account
-az login --identity
+az login
 
 # Step 1: API Creation and Validation
 # Create API in APIM using validated OAS specification
