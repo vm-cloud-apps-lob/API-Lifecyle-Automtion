@@ -15,8 +15,3 @@ jobs:
     - run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
-    - name: Generate Postman Collection
-      uses: fluximus-prime/openapi-to-postman-action@v1.0.1
-      with:
-        openapi_url: openapi.yaml
-        output_file: postman-collection.json
