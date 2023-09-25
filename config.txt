@@ -1,8 +1,8 @@
 SubscriptionId=588bd1bd-718e-4c84-8586-f2d69a7cf61a
 ResourceGroupName=DefaultResourceGroup-CUS
-ApiName=everest-backoffice-testapi5
-SpecificationUrl=https://raw.githubusercontent.com/swagger-api/swagger-petstore/master/src/main/resources/openapi.yaml
-ApiId=everest-backoffice-testapi5
+ApiName=everest-backoffice-testapi6
+SpecificationUrl=https://github.com/vamsi560/everest/blob/main/openapi.yaml
+ApiId=everest-backoffice-testapi6
 ApimName=everest-apim-demo
 ApiPolicyConfigFilePath=policies.xml
 ApiVisibility=Partner
