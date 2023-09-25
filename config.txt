@@ -1,7 +1,7 @@
 SubscriptionId=588bd1bd-718e-4c84-8586-f2d69a7cf61a
 ResourceGroupName=DefaultResourceGroup-CUS
 ApiName=everest-backoffice-testapi6
-SpecificationUrl=SpecificationUrl=https://raw.githubusercontent.com/vamsi560/everest/main/openapi.yaml
+OasFilePath=openapi.yaml
 ApiId=everest-backoffice-testapi6
 ApimName=everest-apim-demo
 ApiPolicyConfigFilePath=policies.xml
