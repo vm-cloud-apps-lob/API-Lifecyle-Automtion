@@ -59,7 +59,7 @@ if (-not $existingApim) {
 # Read the policies content from your policy config file
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 
-# Update the API's policies using the Azure CLI
+# Import policies to the created API using the Azure CLI
 az apim policy import --resource-group $resourceGroupName --service-name $apimName --api-id $apiId --policy-content "$apiPolicies"
 
 # Step 4: API Publishing and Visibility
