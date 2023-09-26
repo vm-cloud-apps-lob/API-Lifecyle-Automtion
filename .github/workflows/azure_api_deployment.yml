@@ -16,10 +16,6 @@ jobs:
     - name: Install Az module
       run: Install-Module -Name Az -Force -AllowClobber
 
-    - name: Uninstall AzureRm modules
-      run: |
-        Uninstall-Module -Name AzureRM -Force
-
     - name: Import Az Module
       run: |
         Import-Module -Name Az
