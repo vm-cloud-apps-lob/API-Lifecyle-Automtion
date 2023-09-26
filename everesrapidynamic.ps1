@@ -56,8 +56,11 @@ if (-not $existingApim) {
 }
 
 # Step 3: Policies Configuration
-# Apply policies to the created API using your policy config file
-az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $apiId --set "policies=@$apiPolicyConfigFilePath"
+# Read the policies content from your policy config file
+$apiPolicies = Get-Content -Path $apiPolicyConfigFilePath
+
+# Apply policies to the created API using the additional property
+az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $apiId --add policies=$apiPolicies
 
 # Step 4: API Publishing and Visibility
 # Publish the API and set visibility
