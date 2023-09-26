@@ -26,7 +26,7 @@ $oasFilePath = $config | Where-Object { $_.Key -eq "OasFilePath" } | Select-Obje
 # Authenticate with your Azure account and add debugging output
 Write-Output "Authenticating with Azure..."
 # Authenticate with your Azure account
-Connect-AzAccount -UseDeviceAuthentication
+az login --use-device-code
 
 # Check if authentication was successful
 if ($?) {
