@@ -25,7 +25,8 @@ $oasFilePath = $config | Where-Object { $_.Key -eq "OasFilePath" } | Select-Obje
 
 # Authenticate with your Azure account and add debugging output
 Write-Output "Authenticating with Azure..."
-az login --use-device-code
+# Authenticate with your Azure account
+Connect-AzAccount -UseDeviceAuthentication
 
 # Check if authentication was successful
 if ($?) {
@@ -55,12 +56,14 @@ if (-not $existingApim) {
     az apim create --name $apimName --resource-group $resourceGroupName --publisher-email "your_publisher_email" --publisher-name "your_publisher_name"
 }
 
-# Step 3: Policies Configuration
+# Step 3: Set API Management context
+$apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
+
 # Read the policies content from your policy config file
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 
-# Import policies to the created API using the Azure CLI
-az apim policy set --resource-group $resourceGroupName --service-name $apimName --api-id $apiId --policy "$apiPolicies"
+# Set policies using Set-AzApiManagementPolicy
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
 # Step 4: API Publishing and Visibility
 # Publish the API and set visibility
