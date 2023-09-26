@@ -13,9 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up PowerShell
-      uses: azure/setup-powershell@v1
-
     - name: Install Az module
       run: Install-Module -Name Az -Force -AllowClobber
     - run: |
