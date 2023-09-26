@@ -15,6 +15,18 @@ jobs:
 
     - name: Install Az module
       run: Install-Module -Name Az -Force -AllowClobber
+
+    - name: Import AzureRM Modules
+      run: |
+        Import-Module -Name AzureRM
+
+    - name: Remove AzureRM Modules
+      run: |
+        Uninstall-Module -Name AzureRM -Force
+
+    - name: Import Az Module
+      run: |
+        Import-Module -Name Az
     - run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
