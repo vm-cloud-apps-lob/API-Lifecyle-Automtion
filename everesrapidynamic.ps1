@@ -59,8 +59,8 @@ if (-not $existingApim) {
 # Read the policies content from your policy config file
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 
-# Import policies to the created API using the Azure CLI
-az apim policy import --resource-group $resourceGroupName --service-name $apimName --api-id $apiId --policy-content "$apiPolicies"
+# Set policies for the created API using Azure PowerShell
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
 # Step 4: API Publishing and Visibility
 # Publish the API and set visibility
