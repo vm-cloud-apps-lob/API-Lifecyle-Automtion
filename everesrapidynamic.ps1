@@ -1,4 +1,12 @@
 # Define the path to your configuration file
+$configFile = "C:\Users\VMADMIN\POC\config.txt"
+
+# Read values from the configuration file
+$config = Get-Content -Path $configFile | ForEach-Object {
+    $key, $value = $_ -split "="
+    [PSCustomObject]@{
+        Key = $key.Trim()
+# Define the path to your configuration file
 $configFile = "$env:GITHUB_WORKSPACE\config.txt"
 
 # Read values from the configuration file
@@ -20,13 +28,11 @@ $apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigF
 $apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-Object -ExpandProperty Value
 $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
-# Access the OAS file path from the configuration object
-$oasFilePath = $config | Where-Object { $_.Key -eq "OasFilePath" } | Select-Object -ExpandProperty Value
+# Specify the path to your OAS file in the repository
+$oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
-# Authenticate with your Azure account and add debugging output
-Write-Output "Authenticating with Azure..."
-# Authenticate with your Azure account
-az login --use-device-code
+# Authenticate with Azure using Azure PowerShell
+Connect-AzAccount -UseDeviceAuthentication
 
 # Check if authentication was successful
 if ($?) {
@@ -39,7 +45,11 @@ if ($?) {
 # Step 1: API Creation and Validation
 # Create API in APIM using the OAS file path from your configuration
 Write-Output "Importing API from OAS file..."
-az apim api import --path "/$apiName" --resource-group $resourceGroupName --service-name $apimName --specification-format OpenApiJson --specification-path $oasFilePath --api-id $apiId
+# Create the API Management context
+$apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
+
+# Import API using the local file path
+Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
 
 # Check the result of API import
 if ($?) {
@@ -51,9 +61,9 @@ if ($?) {
 
 # Step 2: Azure API Management Setup
 # If APIM instance does not exist, create it
-$existingApim = az apim show --name $apimName --resource-group $resourceGroupName --query "name" -o tsv
-if (-not $existingApim) {
-    az apim create --name $apimName --resource-group $resourceGroupName --publisher-email "your_publisher_email" --publisher-name "your_publisher_name"
+$existingApim = Get-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimName -ErrorAction SilentlyContinue
+if ($null -eq $existingApim) {
+    New-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimName -PublisherEmail "vamsi.sapireddy@valuemomentum.com" -PublisherName "Vamsi"
 }
 
 # Step 3: Set API Management context
@@ -65,11 +75,7 @@ $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 # Set policies using Set-AzApiManagementPolicy
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
-# Step 4: API Publishing and Visibility
-# Publish the API and set visibility
-az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $apiName
-
 # Associate the API with the existing product "Unlimited"
-az apim product api add --resource-group $resourceGroupName --service-name $apimName --product-id "Unlimited" --api-id $apiId
+Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
 Write-Output "Script execution completed."
