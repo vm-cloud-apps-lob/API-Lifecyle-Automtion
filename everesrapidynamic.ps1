@@ -41,7 +41,7 @@ Write-Output "Importing API from OAS file..."
 $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
 
 # Replace dots with hyphens in the version for the API revision
-$apiRevision = "2.0.0"
+$apiRevision = "2-0-0"
 
 # Import API using the local file path and specify the -ApiRevision parameter
 $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
