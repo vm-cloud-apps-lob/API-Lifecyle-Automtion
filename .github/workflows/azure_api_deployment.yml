@@ -13,16 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Uninstall AzureRm module
-      run: |
-        Uninstall-AzureRm
-
     - name: Install Az module
       run: Install-Module -Name Az -Force -AllowClobber
 
     - name: Import Az Module
       run: |
         Import-Module -Name Az
+
+    - name: Uninstall AzureRm module
+      run: |
+        Uninstall-AzureRm
+        
     - run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
