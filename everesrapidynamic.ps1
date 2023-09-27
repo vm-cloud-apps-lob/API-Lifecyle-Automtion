@@ -1,12 +1,4 @@
 # Define the path to your configuration file
-$configFile = "C:\Users\VMADMIN\POC\config.txt"
-
-# Read values from the configuration file
-$config = Get-Content -Path $configFile | ForEach-Object {
-    $key, $value = $_ -split "="
-    [PSCustomObject]@{
-        Key = $key.Trim()
-# Define the path to your configuration file
 $configFile = "$env:GITHUB_WORKSPACE\config.txt"
 
 # Read values from the configuration file
