@@ -40,8 +40,11 @@ Write-Output "Importing API from OAS file..."
 # Create the API Management context
 $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
 
+# Get the version from the OAS file
+$oasVersion = (Get-Content $oasFilePath | ConvertFrom-Json).info.version
+
 # Replace dots with hyphens in the version for the API revision
-$apiRevision = "2-0-0"
+$apiRevision = $oasVersion -replace '\.', '-'
 
 # Import API using the local file path and specify the -ApiRevision parameter
 $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
@@ -53,6 +56,7 @@ if ($?) {
     Write-Error "API import failed."
     exit 1
 }
+
 
 # Step 2: Azure API Management Setup
 # If APIM instance does not exist, create it
