@@ -40,16 +40,22 @@ Write-Output "Importing API from OAS file..."
 # Create the API Management context
 $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
 
-# Install the yaml module
-Install-Module -Name yaml -Force -Scope CurrentUser
+# Load the YamlDotNet DLL
+Add-Type -Path ".\YamlDotNet.dll"
 
-# Import the yaml module
-Import-Module -Name yaml
+# Function to parse YAML content and extract the version
+function Get-YamlVersion($yamlContent) {
+    $yamlStream = New-Object YamlDotNet.RepresentationModel.YamlStream
+    $input = [System.IO.File]::OpenText($yamlContent)
+    $yamlStream.Load($input)
+    $document = $yamlStream.Documents[0]
+    $version = $document.RootNode["info"]["version"].ToString()
+    return $version
+}
 
 # Get the version from the OAS file (assuming it's in YAML format)
 $oasContent = Get-Content -Path $oasFilePath -Raw
-$oasYaml = $oasContent | ConvertFrom-Yaml
-$oasVersion = $oasYaml.info.version
+$oasVersion = Get-YamlVersion -yamlContent $oasContent
 
 # Replace dots with hyphens in the version for the API revision
 $apiRevision = $oasVersion -replace '\.', '-'
