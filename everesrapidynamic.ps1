@@ -40,12 +40,12 @@ Write-Output "Importing API from OAS file..."
 # Create the API Management context
 $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
 
-# Import API using the local file path
-Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+# Import API using the local file path, without specifying the -ApiRevision parameter
+$api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
 
 # Check the result of API import
 if ($?) {
-    Write-Output "API import successful."
+    Write-Output "API import successful. Detected API revision: $($api.ApiRevision)"
 } else {
     Write-Error "API import failed."
     exit 1
