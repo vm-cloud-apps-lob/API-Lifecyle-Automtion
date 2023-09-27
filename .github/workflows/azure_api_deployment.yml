@@ -13,12 +13,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install Az module
-      run: Install-Module -Name Az -Force -AllowClobber
-
     - name: Uninstall AzureRm module
       run: |
         Uninstall-AzureRm
+
+    - name: Install Az module
+      run: Install-Module -Name Az -Force -AllowClobber
 
     - name: Import Az Module
       run: |
