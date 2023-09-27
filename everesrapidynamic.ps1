@@ -40,15 +40,15 @@ Write-Output "Importing API from OAS file..."
 # Create the API Management context
 $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
 
-# Import the necessary module for parsing YAML
-Install-Module -Name PowerShell-yaml -Force -Scope CurrentUser
+# Install the yaml module
+Install-Module -Name yaml -Force -Scope CurrentUser
 
-# Import YAML module
-Import-Module -Name PowerShell-yaml
+# Import the yaml module
+Import-Module -Name yaml
 
 # Get the version from the OAS file (assuming it's in YAML format)
 $oasContent = Get-Content -Path $oasFilePath -Raw
-$oasYaml = ConvertFrom-Yaml -InputObject $oasContent
+$oasYaml = $oasContent | ConvertFrom-Yaml
 $oasVersion = $oasYaml.info.version
 
 # Replace dots with hyphens in the version for the API revision
