@@ -96,7 +96,10 @@ if ($existingContainerApp -ne $null) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
     
-    Set-AzApiManagementApi -Context $apimContext -ApiId $existingContainerApp.ApiId -Name $containerAppName -DisplayName $containerAppName -Path $containerAppName -Description $containerAppDescription
+    Set-AzApiManagementApi -Context $apimContext -ApiId $existingContainerApp.ApiId -Path $containerAppName -Description $containerAppDescription
+    
+    # Set the display name using Az module command
+    Set-AzApiManagementApi -Context $apimContext -ApiId $existingContainerApp.ApiId -Path $containerAppName -DisplayName $containerAppName
 
     # Check the result of Container App update
     if ($?) {
@@ -109,7 +112,10 @@ if ($existingContainerApp -ne $null) {
     # The Container App does not exist, create it
     Write-Output "Creating a new Container App..."
     
-    New-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -DisplayName $containerAppName -Path $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link"
+    New-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -Path $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link"
+    
+    # Set the display name using Az module command
+    Set-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path $containerAppName -DisplayName $containerAppName
 
     # Check the result of Container App creation
     if ($?) {
