@@ -112,7 +112,7 @@ if ($existingContainerApp) {
     # The Container App does not exist, create it using Azure CLI
     Write-Output "Creating a new Container App..."
     
-    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name "$containerAppName" --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
+    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name "$containerAppName"
 
     # Check the result of Container App creation
     if ($?) {
