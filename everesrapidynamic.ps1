@@ -23,7 +23,7 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
-# Authenticate with Azure using Azure PowerShell (already authenticated in GitHub Actions)
+# Authenticate with Azure using Azure CLI
 az login --use-device-code
 
 # Step 1: API Creation and Validation
@@ -101,7 +101,7 @@ if ($null -ne $existingContainerApp) {
     # The Container App does not exist, create it using Azure CLI
     Write-Output "Creating a new Container App..."
     
-    New-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -Path "/$containerAppName" -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
+    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name "$containerAppName" --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
 
     # Check the result of Container App creation
     if ($?) {
