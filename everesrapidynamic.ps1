@@ -81,9 +81,6 @@ $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 # Set policies using Set-AzApiManagementPolicy
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
-# Step 4: Publish the API and set visibility
-Publish-AzApiManagementApi -Context $apimContext -ApiId $apiId -State "Published"
-
 # Step 5: Create a Container App
 Write-Output "Creating a Container App..."
 
