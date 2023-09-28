@@ -42,11 +42,8 @@ $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName 
 
 # Function to parse YAML content and extract the version
 function Get-YamlVersion($yamlContent) {
-    $yamlStream = New-Object YamlDotNet.RepresentationModel.YamlStream
-    $input = [System.IO.File]::OpenText($yamlContent)
-    $yamlStream.Load($input)
-    $document = $yamlStream.Documents[0]
-    $version = $document.RootNode["info"]["version"].ToString()
+    $yamlData = $yamlContent | ConvertFrom-Yaml
+    $version = $yamlData.info.version
     return $version
 }
 
