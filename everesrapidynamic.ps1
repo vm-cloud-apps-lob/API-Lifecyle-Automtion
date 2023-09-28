@@ -92,16 +92,17 @@ $containerAppName = "everest-backoffice"
 $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
 
-# ...
-
 # Check if the Container App already exists
-$existingContainerApp = Get-AzApiManagementApi -Context $apimContext -ApiId $apiId -ResourceGroupName $resourceGroupName -ServiceName $apimName -Name $containerAppName -ErrorAction SilentlyContinue
+$allContainerApps = Get-AzApiManagementApi -Context $apimContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
+
+# Filter the results to find the Container App by name
+$existingContainerApp = $allContainerApps | Where-Object { $_.Name -eq $containerAppName }
 
 if ($existingContainerApp -ne $null) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
     
-    Set-AzApiManagementApi -Context $apimContext -ApiId $apiId -ResourceGroupName $resourceGroupName -ServiceName $apimName -Name $containerAppName -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
+    Set-AzApiManagementApi -Context $apimContext -ApiId $existingContainerApp.ApiId -ResourceGroupName $resourceGroupName -ServiceName $apimName -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
 
     # Check the result of Container App update
     if ($?) {
