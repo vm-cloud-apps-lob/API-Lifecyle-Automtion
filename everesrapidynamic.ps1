@@ -23,9 +23,6 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
-# Authenticate with Azure using Azure CLI (already authenticated in GitHub Actions)
-az login --use-device-code
-
 # Synchronize Azure CLI context with Azure PowerShell
 Connect-AzAccount -UseDeviceAuthentication
 
@@ -91,13 +88,6 @@ Write-Output "Creating or Updating a Container App..."
 $containerAppName = "everest-backoffice"
 $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
-
-
-if ($existingContainerApp) {
-    # The Container App already exists, update it with the new API information
-    Write-Output "Updating existing Container App..."
-    
-    az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $existingContainerApp --set "displayName=$containerAppName" "description=$containerAppDescription" "revision=$containerAppRevision"
 
 if ($null -ne $existingContainerApp) {
     # The Container App already exists, update it with the new API information
