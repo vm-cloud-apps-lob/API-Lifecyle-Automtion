@@ -14,16 +14,8 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Azure Login
-      env:
-        AZURE_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-        AZURE_SUBSCRIPTION: ${{ secrets.SUBSCRIPTION_ID }}
       run: |
-        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-        az account set --subscription $AZURE_SUBSCRIPTION
-
-
+        az login --service-principal -u 6af89e8c-f282-4575-9734-00a5042cdd6e -p _Ye8Q~bBKhrwThHgIlsE-czczXH2ZrMv1D-V8cba --tenant 13085c86-4bcb-460a-a6f0-b373421c6323
 
     - name: Install Az module
       run: Install-Module -Name Az -Force -AllowClobber
