@@ -9,9 +9,19 @@ jobs:
   build:
     runs-on: windows-2019
 
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Set up Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ env.AZURE_CLIENT_ID }}:${{ env.AZURE_CLIENT_SECRET }}:${{ env.AZURE_TENANT_ID }}
 
     - name: Install Az module
       run: Install-Module -Name Az -Force -AllowClobber
