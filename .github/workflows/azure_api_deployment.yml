@@ -13,11 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up PowerShell
-      uses: actions/setup-powershell@v1
-      with:
-        powershell-version: '7.1'
-
     - name: Azure Login
       env:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
