@@ -24,7 +24,7 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
 # Synchronize Azure CLI context with Azure PowerShell
-Connect-AzAccount -UseDeviceAuthentication
+az login --use-device-code
 
 # Verify if authentication was successful
 if ($?) {
@@ -81,7 +81,7 @@ $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 # Set policies using Set-AzApiManagementPolicy
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
-# Step 5: Create or Update a Container App
+# Step 4: Create or Update a Container App
 Write-Output "Creating or Updating a Container App..."
 
 # Define the name and other parameters for the Container App
@@ -89,11 +89,14 @@ $containerAppName = "everest-backoffice"
 $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
 
-if ($null -ne $existingContainerApp) {
+# Check if the Container App already exists
+$existingContainerApp = az apim api show --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --output json
+
+if ($existingContainerApp -ne $null) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
 
-    Set-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
+    az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name $containerAppName --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
 
     # Check the result of Container App update
     if ($?) {
@@ -103,10 +106,10 @@ if ($null -ne $existingContainerApp) {
         exit 1
     }
 } else {
-    # The Container App does not exist, create it using Azure PowerShell
+    # The Container App does not exist, create it using Azure CLI
     Write-Output "Creating a new Container App..."
 
-    New-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -Path "/$containerAppName" -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
+    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name $containerAppName --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
 
     # Check the result of Container App creation
     if ($?) {
