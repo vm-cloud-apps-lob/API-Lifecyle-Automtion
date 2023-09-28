@@ -92,14 +92,18 @@ $containerAppName = "everest-backoffice"
 $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
 
-# Check if the Container App already exists
-$existingContainerApp = az apim api list --resource-group $resourceGroupName --service-name $apimName --query "[?name=='$containerAppName']" --output tsv
 
 if ($existingContainerApp) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
     
     az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $existingContainerApp --set "displayName=$containerAppName" "description=$containerAppDescription" "revision=$containerAppRevision"
+
+if ($null -ne $existingContainerApp) {
+    # The Container App already exists, update it with the new API information
+    Write-Output "Updating existing Container App..."
+
+    Set-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
 
     # Check the result of Container App update
     if ($?) {
@@ -109,10 +113,10 @@ if ($existingContainerApp) {
         exit 1
     }
 } else {
-    # The Container App does not exist, create it using Azure CLI
+    # The Container App does not exist, create it using Azure PowerShell
     Write-Output "Creating a new Container App..."
-    
-    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name "$containerAppName"
+
+    New-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -Path "/$containerAppName" -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
 
     # Check the result of Container App creation
     if ($?) {
