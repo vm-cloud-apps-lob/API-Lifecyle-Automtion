@@ -81,23 +81,22 @@ $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 # Set policies using Set-AzApiManagementPolicy
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
-# Step 5: Create a Container App
-Write-Output "Creating a Container App..."
+# Step 5: Create or Update a Container App
+Write-Output "Creating or Updating a Container App..."
 
 # Define the name and other parameters for the Container App
 $containerAppName = "everest-backoffice"
 $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
 
+# Check if the Container App already exists
+$existingContainerApp = az apim api list --resource-group $resourceGroupName --service-name $apimName --query "[?name=='$containerAppName']" --output tsv
 
-# Check if the Container App already exists using Azure CLI
-$existingContainerApp = az apim api list --service-name $apimName --resource-group $resourceGroupName --api-id $apiId --query "[?name=='$containerAppName']" --output json | ConvertFrom-Json
-
-if ($existingContainerApp -ne $null) {
+if ($existingContainerApp) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
     
-    az apim api update --service-name $apimName --resource-group $resourceGroupName --api-id $apiId --api-id $existingContainerApp.ApiId --set description="$containerAppDescription" --set displayName="$containerAppName"
+    az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $existingContainerApp --set "displayName=$containerAppName" "description=$containerAppDescription" "revision=$containerAppRevision"
 
     # Check the result of Container App update
     if ($?) {
@@ -110,7 +109,7 @@ if ($existingContainerApp -ne $null) {
     # The Container App does not exist, create it using Azure CLI
     Write-Output "Creating a new Container App..."
     
-    az apim api create --service-name $apimName --resource-group $resourceGroupName --api-id $apiId --path '/$containerAppName' --display-name "$containerAppName" --description "$containerAppDescription" --import-format "openapi-link" --content-value "$oasFilePath"
+    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name "$containerAppName" --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
 
     # Check the result of Container App creation
     if ($?) {
