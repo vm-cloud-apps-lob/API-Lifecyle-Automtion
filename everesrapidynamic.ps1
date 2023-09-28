@@ -24,7 +24,7 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
 # Authenticate with Azure using Azure PowerShell (already authenticated in GitHub Actions)
-# No need to authenticate again, as it's done in the GitHub Actions workflow
+az login --use-device-code
 
 # Step 1: API Creation and Validation
 # Create API in APIM using the OAS file path from your configuration
