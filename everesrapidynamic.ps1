@@ -81,7 +81,26 @@ $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 # Set policies using Set-AzApiManagementPolicy
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
-# Associate the API with the existing product "Unlimited"
-Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
+# Step 4: Publish the API and set visibility
+Publish-AzApiManagementApi -Context $apimContext -ApiId $apiId -State "Published"
+
+# Step 5: Create a Container App
+Write-Output "Creating a Container App..."
+
+# Define the name and other parameters for the Container App
+$containerAppName = "everest-backoffice"
+$containerAppDescription = "The container is created for PA Submission"
+$containerAppRevision = "1"  # Specify the desired revision
+
+# Create the Container App
+New-AzApiManagementContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -Description $containerAppDescription -Revision $containerAppRevision
+
+# Check the result of Container App creation
+if ($?) {
+    Write-Output "Container App creation successful."
+} else {
+    Write-Error "Container App creation failed."
+    exit 1
+}
 
 Write-Output "Script execution completed."
