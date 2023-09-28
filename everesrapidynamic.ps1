@@ -89,14 +89,14 @@ $containerAppName = "everest-backoffice"
 $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
 
-# Check if the Container App already exists
-$existingContainerApp = Get-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -ErrorAction SilentlyContinue
+# Check if the Container App already exists using Azure CLI
+$existingContainerApp = az apim api export-metadata --name $apimName --resource-group $resourceGroupName --api-id $apiId --container-name $containerAppName --query name --output tsv
 
-if ($null -ne $existingContainerApp) {
+if ($existingContainerApp -eq $containerAppName) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
     
-    Set-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -Description $containerAppDescription -Revision $containerAppRevision
+    az apim api update --name $apimName --resource-group $resourceGroupName --api-id $apiId --container-name $containerAppName --display-name $containerAppName --path $containerAppName --description $containerAppDescription
 
     # Check the result of Container App update
     if ($?) {
@@ -109,7 +109,7 @@ if ($null -ne $existingContainerApp) {
     # The Container App does not exist, create it
     Write-Output "Creating a new Container App..."
     
-    New-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -Description $containerAppDescription -Revision $containerAppRevision
+    az apim api create --name $apimName --resource-group $resourceGroupName --api-id $apiId --container-name $containerAppName --display-name $containerAppName --path $containerAppName --description $containerAppDescription --import openapi-link
 
     # Check the result of Container App creation
     if ($?) {
@@ -119,5 +119,3 @@ if ($null -ne $existingContainerApp) {
         exit 1
     }
 }
-
-Write-Output "Script execution completed."
