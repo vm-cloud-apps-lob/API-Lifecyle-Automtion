@@ -23,6 +23,8 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
+Connect-AzAccount -UseDeviceAuthentication
+
 # Synchronize Azure CLI context with Azure PowerShell
 az login --use-device-code
 
