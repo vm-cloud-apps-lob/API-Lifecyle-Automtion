@@ -12,11 +12,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Azure Login
-      run: |
-        az login --service-principal -u 6af89e8c-f282-4575-9734-00a5042cdd6e -p _Ye8Q~bBKhrwThHgIlsE-czczXH2ZrMv1D-V8cba --tenant 13085c86-4bcb-460a-a6f0-b373421c6323
-        az account set --subscription "Back Office – API Services(POC)"
         
     - name: Install Az module
       run: Install-Module -Name Az -Force -AllowClobber
