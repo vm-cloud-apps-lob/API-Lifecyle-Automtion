@@ -23,16 +23,8 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
-# Authenticate with Azure using Azure PowerShell
-Connect-AzAccount -ServicePrincipal -TenantId $env:AZURE_TENANT_ID -ApplicationId $env:AZURE_CLIENT_ID -CertificateThumbprint $env:AZURE_CLIENT_SECRET
-
-# Check if authentication was successful
-if ($?) {
-    Write-Output "Azure authentication successful."
-} else {
-    Write-Error "Azure authentication failed."
-    exit 1
-}
+# Authenticate with Azure using Azure PowerShell (already authenticated in GitHub Actions)
+# No need to authenticate again, as it's done in the GitHub Actions workflow
 
 # Step 1: API Creation and Validation
 # Create API in APIM using the OAS file path from your configuration
@@ -90,13 +82,13 @@ $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
 
 # Check if the Container App already exists
-$existingContainerApp = Get-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -ErrorAction SilentlyContinue
+$existingContainerApp = Get-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -ErrorAction SilentlyContinue
 
 if ($null -ne $existingContainerApp) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
     
-    Set-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -Description $containerAppDescription -Revision $containerAppRevision
+    Set-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
 
     # Check the result of Container App update
     if ($?) {
@@ -106,10 +98,10 @@ if ($null -ne $existingContainerApp) {
         exit 1
     }
 } else {
-    # The Container App does not exist, create it
+    # The Container App does not exist, create it using Azure CLI
     Write-Output "Creating a new Container App..."
     
-    New-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -Description $containerAppDescription -Revision $containerAppRevision
+    New-AzApiManagementApi -Context $apimContext -ApiId $apiId -Name $containerAppName -Path "/$containerAppName" -DisplayName $containerAppName -Description $containerAppDescription -ImportFormat "openapi-link" -ContentValue "$oasFilePath"
 
     # Check the result of Container App creation
     if ($?) {
