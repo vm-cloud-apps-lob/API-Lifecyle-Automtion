@@ -24,7 +24,7 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
 # Authenticate with Azure using Azure PowerShell
-Connect-AzAccount -UseDeviceAuthentication
+Connect-AzAccount -ServicePrincipal -TenantId $env:AZURE_TENANT_ID -ApplicationId $env:AZURE_CLIENT_ID -CertificateThumbprint $env:AZURE_CLIENT_SECRET
 
 # Check if authentication was successful
 if ($?) {
@@ -90,13 +90,13 @@ $containerAppDescription = "The container is created for PA Submission"
 $containerAppRevision = "1"  # Specify the desired revision
 
 # Check if the Container App already exists
-$existingContainerApp = az apim api list --resource-group $resourceGroupName --service-name $apimName --query "[?name=='$containerAppName']" --output tsv
+$existingContainerApp = Get-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -ErrorAction SilentlyContinue
 
-if ($existingContainerApp) {
+if ($null -ne $existingContainerApp) {
     # The Container App already exists, update it with the new API information
     Write-Output "Updating existing Container App..."
     
-    az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $existingContainerApp --set "displayName=$containerAppName" "description=$containerAppDescription" "revision=$containerAppRevision"
+    Set-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -Description $containerAppDescription -Revision $containerAppRevision
 
     # Check the result of Container App update
     if ($?) {
@@ -106,10 +106,10 @@ if ($existingContainerApp) {
         exit 1
     }
 } else {
-    # The Container App does not exist, create it using Azure CLI
+    # The Container App does not exist, create it
     Write-Output "Creating a new Container App..."
     
-    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name "$containerAppName" --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
+    New-AzApiManagementApiContainerApp -Context $apimContext -ApiId $apiId -Name $containerAppName -Description $containerAppDescription -Revision $containerAppRevision
 
     # Check the result of Container App creation
     if ($?) {
