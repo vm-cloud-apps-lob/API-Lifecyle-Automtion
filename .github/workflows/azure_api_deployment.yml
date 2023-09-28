@@ -26,7 +26,7 @@ jobs:
 
     - name: Install PSYaml Module
       run: |
-        Install-Module -Name powershell-yaml -RequiredVersion 0.4.0
+        Install-Module -Name powershell-yaml -Force
 
     - name: Import PSYaml Module
       run: |
