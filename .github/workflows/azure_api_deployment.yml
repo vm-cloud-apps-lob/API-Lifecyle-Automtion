@@ -23,6 +23,14 @@ jobs:
     - name: Uninstall AzureRm module
       run: |
         Uninstall-AzureRm
+
+    - name: Install PSYaml Module
+      run: |
+        Install-Module -Name powershell-yaml -RequiredVersion 0.4.0
+
+    - name: Import PSYaml Module
+      run: |
+        Import-Module -Name powershell-yaml
         
     - run: |
         # Run your PowerShell script
