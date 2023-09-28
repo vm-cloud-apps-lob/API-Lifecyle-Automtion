@@ -23,8 +23,19 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
-# Authenticate with Azure using Azure CLI
+# Authenticate with Azure using Azure CLI (already authenticated in GitHub Actions)
 az login --use-device-code
+
+# Synchronize Azure CLI context with Azure PowerShell
+Connect-AzAccount -UseDeviceAuthentication
+
+# Verify if authentication was successful
+if ($?) {
+    Write-Output "Azure authentication successful."
+} else {
+    Write-Error "Azure authentication failed."
+    exit 1
+}
 
 # Step 1: API Creation and Validation
 # Create API in APIM using the OAS file path from your configuration
