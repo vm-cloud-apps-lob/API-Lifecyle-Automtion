@@ -55,7 +55,7 @@ $simplifiedVersion = $oasVersion -replace '\.', ''
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    $simplifiedVersion = "v$oasVersion"  # Create a simplified version string
+    $simplifiedVersion = "v$($oasVersion -replace '\.', '')"  # Remove dots from the version
     
     # Add a unique suffix to the API name based on the version
     $newApiName = "${apiName}-${simplifiedVersion}"
