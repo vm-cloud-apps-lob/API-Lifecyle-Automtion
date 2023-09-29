@@ -71,7 +71,8 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
 } else {
     Write-Error "Invalid version format: $oasVersion"
     exit 1
-} else {
+}
+  else {
     # API does not exist, create a new API without setting ApiVersionSetId
     Write-Output "Creating a new API for version $oasVersion"
     $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion
