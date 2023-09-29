@@ -67,7 +67,7 @@ if ($oasVersion -match '^(\d+)\.(\d+)\.(\d+)$') {
     } else {
         # If major version is greater than 1, it's a new API
         Write-Output "Creating a new API for version $oasVersion"
-        $apiNameWithVersion = "${apiName}($oasVersion)"
+        $apiNameWithVersion = "${apiName}($oasVersion)"  # Modify the version string as needed
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiNameWithVersion -Path "/$apiNameWithVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     }
 } else {
