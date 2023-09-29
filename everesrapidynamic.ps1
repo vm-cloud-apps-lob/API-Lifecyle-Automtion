@@ -48,8 +48,6 @@ function Get-YamlVersion($yamlContent) {
 $oasContent = Get-Content -Path $oasFilePath -Raw
 $oasVersion = Get-YamlVersion -yamlContent $oasContent
 
-# ... (previous code)
-
 # Check if the API with the same name exists
 $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiName
 
@@ -66,8 +64,16 @@ if ($existingApi) {
         $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
     } else {
         Write-Output "Creating a new API version $oasVersion..."
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion
+        # Specify the version set ID here if you have one, otherwise, leave it empty
+        $versionSetId = "" 
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion -ApiVersionSetId $versionSetId
     }
+} else {
+    Write-Output "Creating a new API version $oasVersion..."
+    # Specify the version set ID here if you have one, otherwise, leave it empty
+    $versionSetId = "" 
+    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion -ApiVersionSetId $versionSetId
+}
 }
 
 # Check the result of API import
