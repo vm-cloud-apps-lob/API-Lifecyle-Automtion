@@ -58,8 +58,6 @@ $apiRevision = $oasVersion -replace '\.', '-'
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^(\d+)\.(\d+)\.(\d+)$') {
     $majorVersion = $Matches[1]
-    $minorVersion = $Matches[2]
-    $patchVersion = $Matches[3]
 
     # Check the major version to determine if it's 1 or higher
     if ($majorVersion -eq "1") {
@@ -69,7 +67,8 @@ if ($oasVersion -match '^(\d+)\.(\d+)\.(\d+)$') {
     } else {
         # If major version is greater than 1, it's a new API
         Write-Output "Creating a new API for version $oasVersion"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
+        $apiNameWithVersion = "${apiName}($oasVersion)"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiNameWithVersion -Path "/$apiNameWithVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
