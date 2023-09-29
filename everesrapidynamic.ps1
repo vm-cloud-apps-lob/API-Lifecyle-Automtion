@@ -54,13 +54,19 @@ $apiRevision = $oasVersion -replace '\.', '-'
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     # Check if the API already exists
-    $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiName -ResourceGroupName $resourceGroupName -ServiceName $apimName -ErrorAction SilentlyContinue
-    if ($existingApi) {
-        Write-Output "Creating a revision for API version $oasVersion"
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
+    $existingApiManagement = Get-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimName -ErrorAction SilentlyContinue
+    if ($existingApiManagement) {
+        $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiName -ErrorAction SilentlyContinue
+        if ($existingApi) {
+            Write-Output "Creating a revision for API version $oasVersion"
+            $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
+        } else {
+            Write-Output "Creating a new API for version $oasVersion"
+            $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+        }
     } else {
-        Write-Output "Creating a new API for version $oasVersion"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+        Write-Error "Azure API Management instance not found in resource group: $resourceGroupName"
+        exit 1
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
