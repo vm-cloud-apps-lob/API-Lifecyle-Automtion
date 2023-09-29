@@ -55,23 +55,23 @@ $simplifiedVersion = $oasVersion -replace '\.', ''
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    $simplifiedVersion = "v$($oasVersion -replace '\.', '')"  # Remove dots from the version
-    
-    # Modify the API name to include the version
-    $newApiName = "${apiName}-${simplifiedVersion}"
-    
+    # Simplify the version to just the major version (e.g., 2.0.0 => 2)
+    $simplifiedVersion = $versionComponents[0]
+
+    # Create a new API ID with the version
+    $newApiName = "${apiName}-v$simplifiedVersion"
+
     # Check if an API with the same name already exists
-$existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $newApiName
+    $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $newApiName
 
-if ($existingApi -eq $null) {
-    # If the API doesn't exist, create it
-    Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
-    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-} else {
-    # If the API already exists, consider handling this case, e.g., creating a new revision or handling it accordingly
-    Write-Output "API with name $newApiName already exists. You may want to create a new revision or handle this case accordingly."
-}
-
+    if ($existingApi -eq $null) {
+        # If the API doesn't exist, create it
+        Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+    } else {
+        # If the API already exists, consider handling this case, e.g., creating a new revision or handling it accordingly
+        Write-Output "API with name $newApiName already exists. You may want to create a new revision or handle this case accordingly."
+    }
 } else {
     Write-Error "Invalid version format: $oasVersion"
     exit 1
