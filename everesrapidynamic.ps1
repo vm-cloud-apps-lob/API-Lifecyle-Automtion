@@ -74,7 +74,6 @@ if ($existingApi) {
     $versionSetId = "" 
     $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion -ApiVersionSetId $versionSetId
 }
-}
 
 # Check the result of API import
 if ($?) {
