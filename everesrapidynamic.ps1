@@ -55,15 +55,11 @@ $simplifiedVersion = $oasVersion -replace '\.', ''
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    $newApiName = "${apiName}-${simplifiedVersion}"  # Create a new API name with version suffix
-    Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
+    $simplifiedVersion = "v$oasVersion"  # Create a simplified version string
     
-    # Check if an API with the new name already exists
-    $existingApi = Get-AzApiManagementApi -Context $apimContext | Where-Object { $_.Name -eq $newApiName }
-    if ($existingApi -ne $null) {
-        Write-Error "API with the specified name '$newApiName' already exists."
-        exit 1
-    }
+    # Add a unique suffix to the API name based on the version
+    $newApiName = "${apiName}-${simplifiedVersion}"
+    Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
     
     # Import the new API
     $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
