@@ -59,8 +59,8 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
     
     # Check if an API with the new name already exists
-    $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $newApiName -ServiceName $apimName -ErrorAction SilentlyContinue
-    if ($null -ne $existingApi) {
+    $existingApi = Get-AzApiManagementApi -Context $apimContext | Where-Object { $_.Name -eq $newApiName }
+    if ($existingApi -ne $null) {
         Write-Error "API with the specified name '$newApiName' already exists."
         exit 1
     }
