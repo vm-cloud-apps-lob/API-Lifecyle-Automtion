@@ -70,7 +70,7 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
 }
 
     # Create a new API version set
-    $versionSet = New-AzApiManagementApiVersionSet -ResourceGroupName $resourceGroupName -ServiceName $apimName -ApiId $apiName -VersionSetId $apiName -DisplayName "$apiName Version Set" -VersioningScheme "Segment" -VersionQueryName "version" -VersionHeaderName "api-version"
+    New-AzApiManagementApiVersionSet -ResourceGroupName $resourceGroupName -ServiceName $apimName -ApiId $apiName -VersionSetName $versionSetName
 
     # Specify the version set ID when importing the API
     $versionSetId = $versionSet.Id
