@@ -54,9 +54,8 @@ $oasVersion = Get-YamlVersion -yamlContent $oasContent
 $simplifiedVersion = $oasVersion -replace '\.', ''
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
-if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    # Simplify the version to just the major version (e.g., 2.0.0 => 2)
-    $simplifiedVersion = $versionComponents[0]
+if ($oasVersion -match '^(\d+\.\d+\.\d+)$') {
+    $simplifiedVersion = $Matches[1]
 
     # Create a new API ID with the version
     $newApiName = "${apiName}-v$simplifiedVersion"
@@ -76,6 +75,7 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     Write-Error "Invalid version format: $oasVersion"
     exit 1
 }
+
 
 # Step 2: Azure API Management Setup
 # If APIM instance does not exist, create it
