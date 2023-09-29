@@ -67,8 +67,7 @@ if ($existingApi) {
         Write-Output "Creating a new API version $oasVersion..."
 
         # Create a new API version set
-        $versionSet = New-AzApiManagementApiVersionSet -Context $apimContext -ResourceGroupName $resourceGroupName -ServiceName $apimName -DisplayName "$apiName Version Set" -VersioningScheme "Segment" -VersionQueryName "version" -VersionHeaderName "api-version"
-
+        $versionSet = New-AzApiManagementApiVersionSet -Context $apimContext -ResourceGroup $resourceGroupName -ServiceName $apimName -DisplayName "$apiName Version Set" -VersioningScheme "Segment" -VersionQueryName "version" -VersionHeaderName "api-version"
         # Specify the version set ID when importing the API
         $versionSetId = $versionSet.Id
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion -ApiVersionSetId $versionSetId
