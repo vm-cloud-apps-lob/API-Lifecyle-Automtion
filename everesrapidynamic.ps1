@@ -17,8 +17,6 @@ $apiName = $config | Where-Object { $_.Key -eq "ApiName" } | Select-Object -Expa
 $apimName = $config | Where-Object { $_.Key -eq "ApimName" } | Select-Object -ExpandProperty Value
 $apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigFilePath" } | Select-Object -ExpandProperty Value
 
-# ... (previous code)
-
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
@@ -53,37 +51,29 @@ $oasVersion = Get-YamlVersion -yamlContent $oasContent
 # Replace dots with hyphens in the version for the API revision
 $apiRevision = $oasVersion -replace '\.', '-'
 
-# Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
-if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    if ($majorVersion -eq "1") {
-        # If major version is 1, it's a revision
+# Create or update API based on version
+$existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiName -ErrorAction SilentlyContinue
+if ($existingApi) {
+    # API already exists, create a revision if minor version change
+    Write-Output "API already exists. Checking for version change..."
+    $existingVersion = $existingApi.ApiVersion
+    if ($existingVersion -eq $oasVersion) {
+        # Same version, create a revision
         Write-Output "Creating a revision for API version $oasVersion"
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
     } else {
-        # If major version is greater than 1, it's a new API
-        Write-Output "Creating a new API for version $oasVersion"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+        # Different version, update the API
+        Write-Output "Updating API to version $oasVersion"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion
     }
 } else {
-    Write-Error "Invalid version format: $oasVersion"
-    exit 1
-}
-
-    # Create a new API version set
-    New-AzApiManagementApiVersionSet -ResourceGroupName $resourceGroupName -ServiceName $apimName -ApiId $apiName -VersionSetName $versionSetName
-
-    # Specify the version set ID when importing the API
-    $versionSetId = $versionSet.Id
-    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion -ApiVersionSetId $versionSetId
- else {
-    Write-Output "Creating a new API version $oasVersion..."
-    # Specify the version set ID here if you have one, otherwise, leave it empty
-    $versionSetId = "" 
-    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion -ApiVersionSetId $versionSetId
+    # API does not exist, create a new API
+    Write-Output "Creating a new API for version $oasVersion"
+    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion
 }
 
 # Check the result of API import
-if ($?) {
+if ($api) {
     Write-Output "API import successful. Detected API version: $($api.ApiVersion)"
 } else {
     Write-Error "API import failed."
