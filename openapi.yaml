@@ -1,107 +1,187 @@
-# Define the path to your configuration file
-$configFile = "$env:GITHUB_WORKSPACE\config.txt"
+openapi: 3.0.3
+info:
+  title: PA Submission API
+  description: |-
+    Submission API is used for submitting the draft personal Auto Quotes.
+  version: 1.0.0
 
-# Read values from the configuration file
-$config = Get-Content -Path $configFile | ForEach-Object {
-    $key, $value = $_ -split "="
-    [PSCustomObject]@{
-        Key = $key.Trim()
-        Value = $value.Trim()
-    }
-}
-
-# Access values from the configuration object
-$subscriptionId = $config | Where-Object { $_.Key -eq "SubscriptionId" } | Select-Object -ExpandProperty Value
-$resourceGroupName = $config | Where-Object { $_.Key -eq "ResourceGroupName" } | Select-Object -ExpandProperty Value
-$apiName = $config | Where-Object { $_.Key -eq "ApiName" } | Select-Object -ExpandProperty Value
-$apiId = $config | Where-Object { $_.Key -eq "ApiId" } | Select-Object -ExpandProperty Value
-$apimName = $config | Where-Object { $_.Key -eq "ApimName" } | Select-Object -ExpandProperty Value
-$apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigFilePath" } | Select-Object -ExpandProperty Value
-$apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-Object -ExpandProperty Value
-$postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
-
-# Specify the path to your OAS file in the repository
-$oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
-
-# Authenticate with Azure using Azure PowerShell
-Connect-AzAccount -UseDeviceAuthentication
-
-# Check if authentication was successful
-if ($?) {
-    Write-Output "Azure authentication successful."
-} else {
-    Write-Error "Azure authentication failed."
-    exit 1
-}
-
-# Step 1: API Creation and Validation
-# Create API in APIM using the OAS file path from your configuration
-Write-Output "Importing API from OAS file..."
-# Create the API Management context
-$apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
-
-# Function to parse YAML content and extract the version
-function Get-YamlVersion($yamlContent) {
-    $yamlData = $yamlContent | ConvertFrom-Yaml
-    $version = $yamlData.info.version
-    return $version
-}
-
-# Get the version from the OAS file (assuming it's in YAML format)
-$oasContent = Get-Content -Path $oasFilePath -Raw
-$oasVersion = Get-YamlVersion -yamlContent $oasContent
-
-# Split the version string into major, minor, and patch components
-$versionComponents = $oasVersion -split '\.'
-$majorVersion = $versionComponents[0]
-$minorVersion = $versionComponents[1]
-$patchVersion = $versionComponents[2]
-
-# Check if the major version has changed
-if ($majorVersion -ne "1") {
-    # Major version changed, create a new API
-    Write-Output "Creating a new API for version $oasVersion"
-    $apiNameWithVersion = "${apiName}-v$oasVersion"  # Modify the version string as needed
-    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiNameWithVersion -Path "/$apiNameWithVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-} else {
-    # Major version is 1, check if the minor or patch version has changed
-    $existingApi = Get-AzApiManagementApi -Context $apimContext -ResourceGroupName $resourceGroupName -ServiceName $apimName -ApiId $apiId
-    if ($existingApi) {
-        $existingApiVersion = $existingApi.ApiRevision
-        if ($existingApiVersion -eq $oasVersion) {
-            # Minor or patch version is the same, create a revision
-            Write-Output "Creating a revision for API version $oasVersion"
-            $apiRevision = $oasVersion -replace '\.', '-'
-            $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
-        } else {
-            # Minor or patch version has changed, create a new API
-            Write-Output "Creating a new API for version $oasVersion"
-            $apiNameWithVersion = "${apiName}-v$oasVersion"  # Modify the version string as needed
-            $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiNameWithVersion -Path "/$apiNameWithVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-        }
-    } else {
-        Write-Error "API not found."
-        exit 1
-    }
-}
-
-# Step 2: Azure API Management Setup
-# If APIM instance does not exist, create it
-$existingApim = Get-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimName -ErrorAction SilentlyContinue
-if ($null -eq $existingApim) {
-    New-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimName -PublisherEmail "vamsi.sapireddy@valuemomentum.com" -PublisherName "Vamsi"
-}
-
-# Step 3: Set API Management context
-$apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
-
-# Read the policies content from your policy config file
-$apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
-
-# Set policies using Set-AzApiManagementPolicy
-Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
-
-# Associate the API with the existing product "Unlimited"
-Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
-
-Write-Output "Script execution completed."
+servers:
+  - url: https://localhost/pa/quote/v1
+tags:
+  - name: personal auto quote
+    description: personal auto quote
+paths:
+  /submit:
+    post:
+      tags:
+        - personal auto quote
+      summary: submit a draft quote
+      description: submit a draft personal auto quote
+      operationId: submitPAQuote
+      requestBody:
+        description: quote submission request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/submission'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/submissionResponse'   
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+        '405':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+components:
+  schemas:
+    submission:
+      type: object
+      properties:
+        submissionId:
+          type: string
+        quoteNumber:
+          type: string
+        productName:
+          type: string
+        riskState:
+          type: string
+        agent:
+          $ref: '#/components/schemas/agent'
+        primaryInsured:
+          $ref: '#/components/schemas/primaryInsured'
+        vehicles:
+          type: array
+          items:
+            $ref: "#/components/schemas/vehicle"
+        policyCoverages:
+          type: array
+          items:
+            $ref: "#/components/schemas/coverage"
+    vehicle:
+      type: object
+      properties:
+        vehicleId:
+          type: string
+        model:
+          type: string
+        vin: 
+          type: string
+        makeYear:
+          type: string
+        drivers:
+          type: array
+          items:
+            $ref: "#/components/schemas/driver"
+        vehicleCoverages:
+          type: array
+          items:
+            $ref: "#/components/schemas/coverage"
+    coverage:
+      type: object
+      properties:
+        coverageName:
+          type: string
+        coverageCode:
+          type: string
+        coverageLimit:
+          type: string
+        deductible:
+          type: string
+    driver:
+      type: object
+      properties:
+        driverId:
+          type: string
+        driverName:
+          type: string
+        driverLicenseInfo:
+          $ref: "#/components/schemas/driverLicenseInfo"
+    agent:
+      type: object
+      properties:
+        agentName:
+          type: string
+        contractNumber:
+          type: string
+        producerSubCode:
+          type: string
+        stateProducerId:
+          type: string
+        producerRoleCode:
+          type: string
+    primaryInsured:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+        address:
+          $ref: '#/components/schemas/address'
+        driverLicenseInfo:
+          $ref: '#/components/schemas/driverLicenseInfo'
+    address:
+      type: object
+      properties:
+        addressLine1: 
+          type: string
+        addressLine2:
+          type: string
+        street:
+          type: string
+        state:
+          type: string
+    driverLicenseInfo:
+      type: object
+      properties:
+        lincenseNumber:
+          type: string
+        licenseStateCode:
+          type: string
+        licenseStatus:
+          type: string
+    submissionResponse:
+      type: object
+      properties:
+        submissionId: 
+          type: string
+        status:
+          type: string
+    errorResponse:
+      type: object
+      properties:
+        errorCode: 
+          type: string
+        errorDescription:
+          type: string
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
