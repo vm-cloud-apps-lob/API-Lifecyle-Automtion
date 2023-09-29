@@ -23,12 +23,10 @@ $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollect
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
 
+# Authenticate with Azure using Azure PowerShell
 Connect-AzAccount -UseDeviceAuthentication
 
-# Synchronize Azure CLI context with Azure PowerShell
-az login --use-device-code
-
-# Verify if authentication was successful
+# Check if authentication was successful
 if ($?) {
     Write-Output "Azure authentication successful."
 } else {
@@ -53,17 +51,28 @@ function Get-YamlVersion($yamlContent) {
 $oasContent = Get-Content -Path $oasFilePath -Raw
 $oasVersion = Get-YamlVersion -yamlContent $oasContent
 
+
 # Replace dots with hyphens in the version for the API revision
 $apiRevision = $oasVersion -replace '\.', '-'
 
-# Import API using the local file path and specify the -ApiRevision parameter
-$api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
+# Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
+if ($oasVersion -match '^(\d+)\.(\d+)\.(\d+)$') {
+    $majorVersion = $Matches[1]
+    $minorVersion = $Matches[2]
+    $patchVersion = $Matches[3]
 
-# Check the result of API import
-if ($?) {
-    Write-Output "API import successful. Detected API revision: $($api.ApiRevision)"
+    # Check the major version to determine if it's 1 or higher
+    if ($majorVersion -eq "1") {
+        # If major version is 1, it's a revision
+        Write-Output "Creating a revision for API version $oasVersion"
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+    } else {
+        # If major version is greater than 1, it's a new API
+        Write-Output "Creating a new API for version $oasVersion"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
+    }
 } else {
-    Write-Error "API import failed."
+    Write-Error "Invalid version format: $oasVersion"
     exit 1
 }
 
@@ -83,43 +92,7 @@ $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 # Set policies using Set-AzApiManagementPolicy
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
-# Step 4: Create or Update a Container App
-Write-Output "Creating or Updating a Container App..."
-
-# Define the name and other parameters for the Container App
-$containerAppName = "everest-backoffice"
-$containerAppDescription = "The container is created for PA Submission"
-$containerAppRevision = "1"  # Specify the desired revision
-
-# Check if the Container App already exists
-$existingContainerApp = az apim api show --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --output json
-
-if ($existingContainerApp -ne $null) {
-    # The Container App already exists, update it with the new API information
-    Write-Output "Updating existing Container App..."
-
-    az apim api update --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name $containerAppName --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
-
-    # Check the result of Container App update
-    if ($?) {
-        Write-Output "Container App update successful."
-    } else {
-        Write-Error "Container App update failed."
-        exit 1
-    }
-} else {
-    # The Container App does not exist, create it using Azure CLI
-    Write-Output "Creating a new Container App..."
-
-    az apim api create --resource-group $resourceGroupName --service-name $apimName --api-id $containerAppName --path "/$containerAppName" --display-name $containerAppName --revision $containerAppRevision --import-format openapi-link --content-value "$oasFilePath"
-
-    # Check the result of Container App creation
-    if ($?) {
-        Write-Output "Container App creation successful."
-    } else {
-        Write-Error "Container App creation failed."
-        exit 1
-    }
-}
+# Associate the API with the existing product "Unlimited"
+Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
 Write-Output "Script execution completed."
