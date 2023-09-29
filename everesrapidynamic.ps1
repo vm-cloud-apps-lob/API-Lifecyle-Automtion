@@ -56,9 +56,9 @@ $simplifiedVersion = $oasVersion -replace '\.', ''
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    Write-Output "Creating a new API for version v$simplifiedVersion"
-    $apiNameWithVersion = "${apiName}v$simplifiedVersion"
-    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiNameWithVersion -Path "/$apiNameWithVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+    $newApiName = "${apiName}-${simplifiedVersion}"  # Create a new API name with version suffix
+    Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
+    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
 } else {
     Write-Error "Invalid version format: $oasVersion"
     exit 1
