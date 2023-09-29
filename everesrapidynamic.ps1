@@ -46,7 +46,6 @@ function Get-YamlVersion($yamlContent) {
     $version = $yamlData.info.version
     return $version
 }
-
 # Get the version from the OAS file (assuming it's in YAML format)
 $oasContent = Get-Content -Path $oasFilePath -Raw
 $oasVersion = Get-YamlVersion -yamlContent $oasContent
@@ -58,6 +57,15 @@ $simplifiedVersion = $oasVersion -replace '\.', ''
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     $newApiName = "${apiName}-${simplifiedVersion}"  # Create a new API name with version suffix
     Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
+    
+    # Check if an API with the new name already exists
+    $existingApi = Get-AzApiManagementApi -Context $apimContext -ResourceGroupName $resourceGroupName -ApiId $newApiName -ErrorAction SilentlyContinue
+    if ($existingApi) {
+        Write-Error "API with the specified name '$newApiName' already exists."
+        exit 1
+    }
+    
+    # Import the new API
     $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
 } else {
     Write-Error "Invalid version format: $oasVersion"
