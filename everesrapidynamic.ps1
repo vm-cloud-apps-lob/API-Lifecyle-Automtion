@@ -81,7 +81,7 @@ if ($existingApi) {
     # Specify the version set ID when importing the API
     $versionSetId = $versionSet.Id
     $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion -ApiVersionSetId $versionSetId
-  else {
+}  else {
     Write-Output "Creating a new API version $oasVersion..."
     # Specify the version set ID here if you have one, otherwise, leave it empty
     $versionSetId = "" 
