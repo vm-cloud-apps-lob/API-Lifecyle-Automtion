@@ -51,23 +51,14 @@ function Get-YamlVersion($yamlContent) {
 $oasContent = Get-Content -Path $oasFilePath -Raw
 $oasVersion = Get-YamlVersion -yamlContent $oasContent
 
-# Split the version string into major, minor, and patch components
-$versionComponents = $oasVersion -split '\.'
-$majorVersion = $versionComponents[0]
+# Remove dots from the version string to simplify the versioning (e.g., 2.0.0 becomes v2)
+$simplifiedVersion = $oasVersion -replace '\.', ''
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    if ($majorVersion -eq "1") {
-        # If major version is 1, it's a revision
-        Write-Output "Creating a revision for API version $oasVersion"
-        $apiRevision = $oasVersion -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
-    } else {
-        # If major version is greater than 1, it's a new API
-        Write-Output "Creating a new API for version $oasVersion"
-        $apiNameWithVersion = "${apiName}v$oasVersion"  # Remove spaces from the version string
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiNameWithVersion -Path "/$apiNameWithVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-    }
+    Write-Output "Creating a new API for version v$simplifiedVersion"
+    $apiNameWithVersion = "${apiName}v$simplifiedVersion"
+    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiNameWithVersion -Path "/$apiNameWithVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
 } else {
     Write-Error "Invalid version format: $oasVersion"
     exit 1
