@@ -61,16 +61,17 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     $newApiName = "${apiName}-${simplifiedVersion}"
     
     # Check if an API with the same name already exists
-    $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $newApiName -ResourceGroupName $resourceGroupName
-    
-    if ($existingApi -eq $null) {
-        # If the API doesn't exist, create it
-        Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-    } else {
-        # If the API already exists, consider handling this case, e.g., creating a new revision
-        Write-Output "API with name $newApiName already exists. You may want to create a new revision or handle this case accordingly."
-    }
+$existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $newApiName
+
+if ($existingApi -eq $null) {
+    # If the API doesn't exist, create it
+    Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
+    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+} else {
+    # If the API already exists, consider handling this case, e.g., creating a new revision or handling it accordingly
+    Write-Output "API with name $newApiName already exists. You may want to create a new revision or handle this case accordingly."
+}
+
 } else {
     Write-Error "Invalid version format: $oasVersion"
     exit 1
