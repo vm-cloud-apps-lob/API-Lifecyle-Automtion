@@ -14,11 +14,8 @@ $config = Get-Content -Path $configFile | ForEach-Object {
 $subscriptionId = $config | Where-Object { $_.Key -eq "SubscriptionId" } | Select-Object -ExpandProperty Value
 $resourceGroupName = $config | Where-Object { $_.Key -eq "ResourceGroupName" } | Select-Object -ExpandProperty Value
 $apiName = $config | Where-Object { $_.Key -eq "ApiName" } | Select-Object -ExpandProperty Value
-$apiId = $config | Where-Object { $_.Key -eq "ApiId" } | Select-Object -ExpandProperty Value
 $apimName = $config | Where-Object { $_.Key -eq "ApimName" } | Select-Object -ExpandProperty Value
 $apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigFilePath" } | Select-Object -ExpandProperty Value
-$apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-Object -ExpandProperty Value
-$postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
@@ -46,36 +43,41 @@ function Get-YamlVersion($yamlContent) {
     $version = $yamlData.info.version
     return $version
 }
+
 # Get the version from the OAS file (assuming it's in YAML format)
 $oasContent = Get-Content -Path $oasFilePath -Raw
 $oasVersion = Get-YamlVersion -yamlContent $oasContent
 
-# Remove dots from the version string to simplify the versioning (e.g., 2.0.0 becomes v2)
-$simplifiedVersion = $oasVersion -replace '\.', ''
+# Check if the API with the same name exists
+$existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiName -ResourceGroupName $resourceGroupName
 
-# Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
-if ($oasVersion -match '^(\d+\.\d+\.\d+)$') {
-    $simplifiedVersion = $Matches[1]
+if ($existingApi) {
+    Write-Output "API with name $apiName already exists. Checking version..."
 
-    # Create a new API ID with the version
-    $newApiName = "${apiName}-v$simplifiedVersion"
+    # Get the existing API's version
+    $existingVersion = $existingApi.ApiVersion
 
-    # Check if an API with the same name already exists
-    $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $newApiName
-
-    if ($existingApi -eq $null) {
-        # If the API doesn't exist, create it
-        Write-Output "Creating a new API for version $simplifiedVersion with name $newApiName"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $newApiName -Path "/$newApiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+    # Compare the existing version with the OAS version
+    if ($existingVersion -eq $oasVersion) {
+        Write-Output "API version $oasVersion already exists. Creating a revision..."
+        $apiRevision = $oasVersion -replace '\.', '-'
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
     } else {
-        # If the API already exists, consider handling this case, e.g., creating a new revision or handling it accordingly
-        Write-Output "API with name $newApiName already exists. You may want to create a new revision or handle this case accordingly."
+        Write-Output "Creating a new API version $oasVersion..."
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion
     }
 } else {
-    Write-Error "Invalid version format: $oasVersion"
-    exit 1
+    Write-Output "Creating a new API version $oasVersion..."
+    $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiVersion $oasVersion
 }
 
+# Check the result of API import
+if ($?) {
+    Write-Output "API import successful. Detected API version: $($api.ApiVersion)"
+} else {
+    Write-Error "API import failed."
+    exit 1
+}
 
 # Step 2: Azure API Management Setup
 # If APIM instance does not exist, create it
@@ -91,9 +93,6 @@ $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName 
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 
 # Set policies using Set-AzApiManagementPolicy
-Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
-
-# Associate the API with the existing product "Unlimited"
-Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiName -Policy $apiPolicies
 
 Write-Output "Script execution completed."
