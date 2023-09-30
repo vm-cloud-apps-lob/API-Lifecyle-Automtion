@@ -50,17 +50,19 @@ Write-Output "OAS Version: $oasVersion"
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     $majorVersion = [int]($oasVersion.Split('.')[0])
     $minorVersion = [int]($oasVersion.Split('.')[1])
+    $patchVersion = [int]($oasVersion.Split('.')[2])
 
     # Debugging output
     Write-Output "Major Version: $majorVersion"
     Write-Output "Minor Version: $minorVersion"
+    Write-Output "Patch Version: $patchVersion"
 
-    if ($minorVersion -eq 0) {
-        # If minor version is 0, it's a major version change, create a new API
+    if ($minorVersion -eq 0 -and $patchVersion -eq 0) {
+        # If minor version and patch version are both 0, it's a major version change, create a new API
         Write-Output "Creating a new API for version $oasVersion"
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     } else {
-        # If minor version is greater than 0, it's a revision
+        # If minor version or patch version are greater than 0, it's a revision
         Write-Output "Creating a revision for API version $oasVersion"
         $apiRevision = $oasVersion -replace '\.', '-'
         $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
