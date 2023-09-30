@@ -1,6 +1,7 @@
 # Define the path to your configuration file
 $configFile = "$env:GITHUB_WORKSPACE\config.txt"
 
+Write-Output "Resolved Config file path: $configFile"
 # Read values from the configuration file
 $config = Get-Content -Path $configFile | ForEach-Object {
     $key, $value = $_ -split "="
