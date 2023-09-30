@@ -39,26 +39,26 @@ function Get-YamlVersion($yamlContent) {
     return $version
 }
 
-# Get the version from the OAS file (assuming it's in YAML format)
+# Get the title from the OAS file (assuming it's in YAML format)
 $oasContent = Get-Content -Path $oasFilePath -Raw
-$oasVersion = Get-YamlVersion -yamlContent $oasContent
+$oasData = $oasContent | ConvertFrom-Yaml
+$oasTitle = $oasData.info.title
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     $majorVersion = [int]($oasVersion.Split('.')[0])
     $minorVersion = [int]($oasVersion.Split('.')[1])
 
-    # Check if it's a major version change (minor version is zero)
     if ($minorVersion -eq 0) {
-        Write-Output "Creating a new API for version $oasVersion"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId "$apiName-v$majorVersion" -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-    }
-    # Check if it's a revision (minor version is greater than zero)
-    elseif ($minorVersion -gt 0) {
+        # If minor version is 0, it's a major version change, create a new API
+        $apiName = "$oasTitle v$majorVersion"
+        Write-Output "Creating a new API for version $oasVersion with name: $apiName"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+    } else {
+        # If minor version is greater than 0, it's a revision
         Write-Output "Creating a revision for API version $oasVersion"
-        $apiRevisionId = $oasVersion -replace '\.', '-'
-        $revisionApiId = "$apiName-v$majorVersion-revision-$apiRevisionId"
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId "$apiName-v$majorVersion" -ApiRevision $revisionApiId
+        $apiRevision = $oasVersion -replace '\.', '-'
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
