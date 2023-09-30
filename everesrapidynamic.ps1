@@ -65,6 +65,13 @@ if ($?) {
     exit 1
 }
 
+# Create a new revision of the API with the updated path
+$updatedApiRevision = $apiRevision + "-updated"
+$updatedApi = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $updatedApiRevision
+
+# Set the new path for the updated revision
+Set-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName-updated"
+
 # Step 2: Azure API Management Setup
 # If APIM instance does not exist, create it
 $existingApim = Get-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimName -ErrorAction SilentlyContinue
