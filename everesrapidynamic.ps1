@@ -14,11 +14,8 @@ $config = Get-Content -Path $configFile | ForEach-Object {
 $subscriptionId = $config | Where-Object { $_.Key -eq "SubscriptionId" } | Select-Object -ExpandProperty Value
 $resourceGroupName = $config | Where-Object { $_.Key -eq "ResourceGroupName" } | Select-Object -ExpandProperty Value
 $apiName = $config | Where-Object { $_.Key -eq "ApiName" } | Select-Object -ExpandProperty Value
-$apiId = $config | Where-Object { $_.Key -eq "ApiId" } | Select-Object -ExpandProperty Value
 $apimName = $config | Where-Object { $_.Key -eq "ApimName" } | Select-Object -ExpandProperty Value
 $apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigFilePath" } | Select-Object -ExpandProperty Value
-$apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-Object -ExpandProperty Value
-$postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
@@ -60,7 +57,7 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     elseif ($minorVersion -gt 0) {
         Write-Output "Creating a revision for API version $oasVersion"
         $apiRevision = $oasVersion -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
@@ -69,9 +66,6 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
 
 # Set policies using Set-AzApiManagementPolicy
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
-Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
-
-# Associate the API with the existing product "Unlimited"
-Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiName -Policy $apiPolicies
 
 Write-Output "Script execution completed."
