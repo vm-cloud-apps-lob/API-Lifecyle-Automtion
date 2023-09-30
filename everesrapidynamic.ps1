@@ -60,12 +60,18 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     if ($minorVersion -eq 0 -and $patchVersion -eq 0) {
         # If minor version and patch version are both 0, it's a major version change, create a new API
         Write-Output "Creating a new API for version $oasVersion"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+
+        # Debugging output
+        Write-Output "API Creation Result: $api"
     } else {
         # If minor version or patch version are greater than 0, it's a revision
         Write-Output "Creating a revision for API version $oasVersion"
         $apiRevision = $oasVersion -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+
+        # Debugging output
+        Write-Output "API Revision Result: $api"
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
