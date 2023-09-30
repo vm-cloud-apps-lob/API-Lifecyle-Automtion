@@ -84,4 +84,12 @@ Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolici
 # Associate the API with the existing product "Unlimited"
 Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
+# Step 4: Integrate Container App with API Management (Replace placeholders)
+$containerAppName = "everestbackoffice"  # Replace with your Container App name
+$apiUrlSuffix = "v3"  # Replace with your API URL suffix
+$productName = "Unlimited"  # Replace with your Product name
+
+# Import the Container App into Azure API Management
+$containerApp = New-AzApiManagementApi -Context $apimContext -Name $containerAppName -Path "/$apiUrlSuffix" -ImportFromContainerApp $containerAppName -ApiUrlSuffix $apiUrlSuffix -Product $productName
+
 Write-Output "Script execution completed."
