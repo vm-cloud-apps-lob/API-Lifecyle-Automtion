@@ -55,7 +55,8 @@ $oasVersion = Get-YamlVersion -yamlContent $oasContent
 $apiRevision = $oasVersion -replace '\.', '-'
 
 # Import API using the local file path and specify the -ApiRevision parameter
-$api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
+$apiPath = "/$apiName-v$majorVersion.$minorVersion"  # Adjust the naming convention as needed
+$api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiPath -Path $apiPath -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
 
 # Check the result of API import
 if ($?) {
