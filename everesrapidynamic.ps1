@@ -32,41 +32,40 @@ if (-not $?) {
 # Create the API Management context
 $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
 
-# Function to parse YAML content and extract the version
-function Get-YamlVersion($yamlContent) {
+# Function to parse YAML content and extract the version and title
+function Get-YamlInfo($yamlContent) {
     $yamlData = $yamlContent | ConvertFrom-Yaml
-    $version = $yamlData.info.version
-    return $version
+    $info = $yamlData.info
+    return @{
+        Version = $info.version
+        Title = $info.title
+    }
 }
 
-# Get the version from the OAS file (assuming it's in YAML format)
+# Get the version and title from the OAS file (assuming it's in YAML format)
 $oasContent = Get-Content -Path $oasFilePath -Raw
-$oasVersion = Get-YamlVersion -yamlContent $oasContent
+$oasInfo = Get-YamlInfo -yamlContent $oasContent
 
-# Debugging output
-Write-Output "OAS Version: $oasVersion"
-
-
-if ($oasVersion -match '^\d+\.\d+\.\d+$') {
-    $majorVersion = [int]($oasVersion.Split('.')[0])
-    $minorVersion = [int]($oasVersion.Split('.')[1])
+# Check if the version and title follow the expected pattern
+if ($oasInfo.Version -match '^\d+\.\d+\.\d+$') {
+    $majorVersion = [int]($oasInfo.Version.Split('.')[0])
+    $minorVersion = [int]($oasInfo.Version.Split('.')[1])
 
     if ($minorVersion -eq 0) {
         # If minor version is 0, it's a major version change, create a new API
         $apiVersion = "v$majorVersion"
-        $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-        $apiName = "$apiName-$apiVersion-$timestamp"
-        $apiId = "$apiId-$apiVersion-$timestamp" -replace '-', '_' # Replace hyphens with underscores
-        Write-Output "Creating a new API for version $oasVersion"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+        $apiName = "$oasInfo.Title $apiVersion"
+        $apiId = "$apiName" -replace ' ', '-' # Replace spaces with hyphens
+        Write-Output "Creating a new API for version $($oasInfo.Version)"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiId" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     } else {
         # If minor version is greater than 0, it's a revision
-        $apiRevision = $oasVersion -replace '\.', '-'
+        $apiRevision = $oasInfo.Version -replace '\.', '-'
         $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
-        Write-Output "Creating a revision for API version $oasVersion"
+        Write-Output "Creating a revision for API version $($oasInfo.Version)"
     }
 } else {
-    Write-Error "Invalid version format: $oasVersion"
+    Write-Error "Invalid version format: $($oasInfo.Version)"
     exit 1
 }
 
