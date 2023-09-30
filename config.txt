@@ -7,3 +7,7 @@ ApimName=everest-apim-demo
 ApiPolicyConfigFilePath=policies.xml
 ApiVisibility=Partner
 PostmanCollectionFilePath=Swagger Petstore - OpenAPI 3.0.postman_test_run.json
+ContainerAppName=everestbackoffice
+ApiUrlSuffix=v3
+ProductName=Unlimited
+
