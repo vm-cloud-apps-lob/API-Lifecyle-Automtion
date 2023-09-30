@@ -47,7 +47,6 @@ $oasVersion = Get-YamlVersion -yamlContent $oasContent
 Write-Output "OAS Version: $oasVersion"
 
 
-# Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     $majorVersion = [int]($oasVersion.Split('.')[0])
     $minorVersion = [int]($oasVersion.Split('.')[1])
@@ -55,8 +54,9 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     if ($minorVersion -eq 0) {
         # If minor version is 0, it's a major version change, create a new API
         $apiVersion = "v$majorVersion"
-        $apiName = "$apiName-$apiVersion"
-        $apiId = "$apiId-$apiVersion" -replace '-', '_' # Replace hyphens with underscores
+        $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+        $apiName = "$apiName-$apiVersion-$timestamp"
+        $apiId = "$apiId-$apiVersion-$timestamp" -replace '-', '_' # Replace hyphens with underscores
         Write-Output "Creating a new API for version $oasVersion"
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     } else {
