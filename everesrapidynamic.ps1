@@ -65,6 +65,46 @@ if ($?) {
     exit 1
 }
 
+# Function to check if two versions are the same major version
+function IsSameMajorVersion($version1, $version2) {
+    $major1, $minor1, $patch1 = $version1.Split('.')
+    $major2, $minor2, $patch2 = $version2.Split('.')
+    return $major1 -eq $major2
+}
+
+# Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
+if ($oasVersion -match '^\d+\.\d+\.\d+$') {
+    $majorVersion = [int]($oasVersion.Split('.')[0])
+
+    # Get the latest version of the API in APIM
+    $latestApiVersion = Get-AzApiManagementApiVersion -Context $apimContext -ApiId $apiId | Sort-Object -Property Version -Descending | Select-Object -First 1
+
+    if ($latestApiVersion) {
+        $latestVersion = $latestApiVersion.Version
+    } else {
+        $latestVersion = "0.0.0"
+    }
+
+    # Check if it's a major version change
+    if (!IsSameMajorVersion $oasVersion $latestVersion) {
+        Write-Output "Creating a new API for version $oasVersion"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId "$apiName-v$majorVersion" -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+    }
+    # Check if it's a minor version change or patch update
+    elseif ($oasVersion -gt $latestVersion) {
+        Write-Output "Creating a revision for API version $oasVersion"
+        $apiRevision = $oasVersion -replace '\.', '-'
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+    }
+    else {
+        Write-Error "Invalid version format: $oasVersion"
+        exit 1
+    }
+} else {
+    Write-Error "Invalid version format: $oasVersion"
+    exit 1
+}
+
 # Step 2: Azure API Management Setup
 # If APIM instance does not exist, create it
 $existingApim = Get-AzApiManagement -ResourceGroupName $resourceGroupName -Name $apimName -ErrorAction SilentlyContinue
