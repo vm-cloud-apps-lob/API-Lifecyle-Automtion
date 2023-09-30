@@ -60,6 +60,16 @@ $apiPath = "/$apiName-v$majorVersion-$minorVersion"  # Adjust the naming convent
 # Remove any invalid characters from the API identifier
 $apiPath = $apiPath -replace '[^a-zA-Z0-9-]', ''
 
+# Ensure the API identifier starts with a letter or number
+if ($apiPath -match '^[^a-zA-Z0-9]') {
+    $apiPath = "api" + $apiPath
+}
+
+# Ensure the API identifier ends with a letter or number
+if ($apiPath -match '[^a-zA-Z0-9]$') {
+    $apiPath = $apiPath + "api"
+}
+
 # Import API using the local file path and specify the -ApiRevision parameter
 $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiPath -Path $apiPath -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
 
