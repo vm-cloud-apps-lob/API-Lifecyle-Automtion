@@ -83,4 +83,4 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiPath -Policy $apiPolicies
 
-Write-Output "Script execution completed
+Write-Output "Script execution completed"
