@@ -65,7 +65,7 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
         # If minor version or patch version are greater than 0, it's a revision
         Write-Output "Creating a revision for API version $oasVersion"
         $apiRevision = $oasVersion -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
