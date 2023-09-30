@@ -46,45 +46,32 @@ $oasVersion = Get-YamlVersion -yamlContent $oasContent
 # Debugging output
 Write-Output "OAS Version: $oasVersion"
 
+
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     $majorVersion = [int]($oasVersion.Split('.')[0])
     $minorVersion = [int]($oasVersion.Split('.')[1])
-    $patchVersion = [int]($oasVersion.Split('.')[2])
 
-    # Debugging output
-    Write-Output "Major Version: $majorVersion"
-    Write-Output "Minor Version: $minorVersion"
-    Write-Output "Patch Version: $patchVersion"
-
-    if ($minorVersion -eq 0 -and $patchVersion -eq 0) {
-        # If minor version and patch version are both 0, it's a major version change, create a new API
-        Write-Output "Creating a new API for version $oasVersion"
-
-        # Check if the API with the same name and version already exists
-        $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiId -ErrorAction SilentlyContinue
-
-        if ($existingApi -eq $null) {
-            # API does not exist, create a new API
-            Write-Output "Creating a new API for version $oasVersion"
-            $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-        } else {
-            # API with the same name and version already exists
-            Write-Output "API with the same name and version already exists. Skipping import."
-        }
-
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-
-        # Debugging output
-        Write-Output "API Creation Result: $api"
+    # Set $apiId based on the API version
+    if ($minorVersion -eq 0) {
+        # If minor version is 0, it's a major version change, create a new API
+        $apiId = $apiName
     } else {
-        # If minor version or patch version are greater than 0, it's a revision
-        Write-Output "Creating a revision for API version $oasVersion"
+        # If minor version is greater than 0, it's a revision
         $apiRevision = $oasVersion -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+        $apiId = "$apiName-revision-$apiRevision"
+    }
 
-        # Debugging output
-        Write-Output "API Revision Result: $api"
+    # Check if the API with the same name and version already exists
+    $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiId -ErrorAction SilentlyContinue
+
+    if ($existingApi -eq $null) {
+        # API does not exist, create a new API
+        Write-Output "Creating a new API for version $oasVersion"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+    } else {
+        # API with the same name and version already exists
+        Write-Output "API with the same name and version already exists. Skipping import."
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
