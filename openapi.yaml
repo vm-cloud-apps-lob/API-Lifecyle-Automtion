@@ -3,7 +3,7 @@ info:
   title: PA Submission API
   description: |-
     Submission API is used for submitting the draft personal Auto Quotes.
-  version: 1.0.0
+  version: 1.0.2
 
 servers:
   - url: https://localhost/pa/quote/v1
