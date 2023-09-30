@@ -74,6 +74,7 @@ if ($oasInfo.Version -match '^\d+\.\d+\.\d+$') {
 
 # Set policies using Set-AzApiManagementPolicy
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
-Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiName -Policy $apiPolicies
+# Use the correct API identifier ($apiId) when setting the policy
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
 Write-Output "Script execution completed."
