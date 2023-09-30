@@ -56,6 +56,9 @@ if ($oasInfo.Version -match '^\d+\.\d+\.\d+$') {
         $apiVersion = "v$majorVersion"
         $apiName = "$oasInfo.Title $apiVersion"
         $apiId = "$apiName" -replace ' ', '-' # Replace spaces with hyphens
+        $apiId = $apiId -replace '[^a-zA-Z0-9-]', '' # Remove invalid characters
+        # Ensure that the identifier starts and ends with a letter or number
+        $apiId = $apiId -replace '^-|-$', ''
         Write-Output "Creating a new API for version $($oasInfo.Version)"
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiId" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     } else {
