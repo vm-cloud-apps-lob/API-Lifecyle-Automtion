@@ -60,6 +60,19 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     if ($minorVersion -eq 0 -and $patchVersion -eq 0) {
         # If minor version and patch version are both 0, it's a major version change, create a new API
         Write-Output "Creating a new API for version $oasVersion"
+
+        # Check if the API with the same name and version already exists
+        $existingApi = Get-AzApiManagementApi -Context $apimContext -ApiId $apiId -ErrorAction SilentlyContinue
+
+        if ($existingApi -eq $null) {
+            # API does not exist, create a new API
+            Write-Output "Creating a new API for version $oasVersion"
+            $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+        } else {
+            # API with the same name and version already exists
+            Write-Output "API with the same name and version already exists. Skipping import."
+        }
+
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
 
         # Debugging output
