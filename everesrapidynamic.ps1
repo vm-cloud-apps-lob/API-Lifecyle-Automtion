@@ -51,13 +51,14 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     # Check if it's a major version change (minor version is zero)
     if ($minorVersion -eq 0) {
         Write-Output "Creating a new API for version $oasVersion"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId "$apiName-v$majorVersion" -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     }
     # Check if it's a revision (minor version is greater than zero)
     elseif ($minorVersion -gt 0) {
         Write-Output "Creating a revision for API version $oasVersion"
-        $apiRevision = $oasVersion -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiName -ApiRevision $apiRevision
+        $apiRevisionId = $oasVersion -replace '\.', '-'
+        $revisionApiId = "$apiName-v$majorVersion-revision-$apiRevisionId"
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId "$apiName-v$majorVersion" -ApiRevision $revisionApiId
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
@@ -66,6 +67,6 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
 
 # Set policies using Set-AzApiManagementPolicy
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
-Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiName -Policy $apiPolicies
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $api.ApiId -Policy $apiPolicies
 
 Write-Output "Script execution completed."
