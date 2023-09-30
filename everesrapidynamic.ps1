@@ -42,10 +42,6 @@ function Get-YamlInfo($yamlContent) {
     }
 }
 
-# Get the version and title from the OAS file (assuming it's in YAML format)
-$oasContent = Get-Content -Path $oasFilePath -Raw
-$oasInfo = Get-YamlInfo -yamlContent $oasContent
-
 # Check if the version and title follow the expected pattern
 if ($oasInfo.Version -match '^\d+\.\d+\.\d+$') {
     $majorVersion = [int]($oasInfo.Version.Split('.')[0])
@@ -54,8 +50,8 @@ if ($oasInfo.Version -match '^\d+\.\d+\.\d+$') {
     if ($minorVersion -eq 0) {
         # If minor version is 0, it's a major version change, create a new API
         $apiVersion = "v$majorVersion"
-        $apiName = "$oasInfo.Title $apiVersion"
-        $apiId = "$apiName" -replace ' ', '-' # Replace spaces with hyphens
+        $apiName = "$($oasInfo.Title) $apiVersion" # Include title and version
+        $apiId = $apiName -replace ' ', '-' # Replace spaces with hyphens
         $apiId = $apiId -replace '[^a-zA-Z0-9-]', '' # Remove invalid characters
         # Ensure that the identifier starts and ends with a letter or number
         $apiId = $apiId -replace '^-|-$', ''
@@ -64,7 +60,7 @@ if ($oasInfo.Version -match '^\d+\.\d+\.\d+$') {
     } else {
         # If minor version is greater than 0, it's a revision
         $apiRevision = $oasInfo.Version -replace '\.', '-'
-        $apiId = "$oasInfo.Title" # Use the same API identifier for revisions
+        $apiId = "$($oasInfo.Title) $apiRevision" # Include title and revision
         Write-Output "Creating a revision for API version $($oasInfo.Version)"
         $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
     }
