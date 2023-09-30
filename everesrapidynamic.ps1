@@ -64,8 +64,9 @@ if ($oasInfo.Version -match '^\d+\.\d+\.\d+$') {
     } else {
         # If minor version is greater than 0, it's a revision
         $apiRevision = $oasInfo.Version -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+        $apiId = "$oasInfo.Title" # Use the same API identifier for revisions
         Write-Output "Creating a revision for API version $($oasInfo.Version)"
+        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
     }
 } else {
     Write-Error "Invalid version format: $($oasInfo.Version)"
