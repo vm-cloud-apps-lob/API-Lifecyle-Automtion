@@ -1,21 +1,12 @@
-# Define the path to your configuration file
-$configFile = "$env:GITHUB_WORKSPACE\config.txt"
-
-# Read values from the configuration file
-$config = Get-Content -Path $configFile | ForEach-Object {
-    $key, $value = $_ -split "="
-    [PSCustomObject]@{
-        Key = $key.Trim()
-        Value = $value.Trim()
-    }
-}
-
 # Access values from the configuration object
 $subscriptionId = $config | Where-Object { $_.Key -eq "SubscriptionId" } | Select-Object -ExpandProperty Value
 $resourceGroupName = $config | Where-Object { $_.Key -eq "ResourceGroupName" } | Select-Object -ExpandProperty Value
 $apiName = $config | Where-Object { $_.Key -eq "ApiName" } | Select-Object -ExpandProperty Value
 $apimName = $config | Where-Object { $_.Key -eq "ApimName" } | Select-Object -ExpandProperty Value
 $apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigFilePath" } | Select-Object -ExpandProperty Value
+$containerAppName = $config | Where-Object { $_.Key -eq "ContainerAppName" } | Select-Object -ExpandProperty Value
+$apiUrlSuffix = $config | Where-Object { $_.Key -eq "ApiUrlSuffix" } | Select-Object -ExpandProperty Value
+$productName = $config | Where-Object { $_.Key -eq "ProductName" } | Select-Object -ExpandProperty Value
 
 # Specify the path to your OAS file in the repository
 $oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
@@ -67,5 +58,8 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 # Use the correct API identifier ($apiId) when setting the policy
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
+
+# Import the Container App into Azure API Management
+$containerApp = New-AzApiManagementApi -Context $apimContext -Name $containerAppName -Path "/$apiUrlSuffix" -ImportFromContainerApp $containerAppName -ApiUrlSuffix $apiUrlSuffix -Product $productName
 
 Write-Output "Script execution completed."
