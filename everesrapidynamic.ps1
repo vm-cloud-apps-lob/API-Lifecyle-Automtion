@@ -44,21 +44,20 @@ $oasContent = Get-Content -Path $oasFilePath -Raw
 $oasData = $oasContent | ConvertFrom-Yaml
 $oasTitle = $oasData.info.title
 
-# Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
-if ($oasVersion -match '^\d+\.\d+\.\d+$') {
+# Check if the version follows the pattern of x.y.z or x.y (e.g., 1.0.0 or 1.0)
+if ($oasVersion -match '^\d+(\.\d+){1,2}$') {
     $majorVersion = [int]($oasVersion.Split('.')[0])
     $minorVersion = [int]($oasVersion.Split('.')[1])
 
+    # Check if it's a major version change (minor version is zero or not present)
     if ($minorVersion -eq 0) {
-        # If minor version is 0, it's a major version change, create a new API
-        $apiName = "$oasTitle v$majorVersion"
-        Write-Output "Creating a new API for version $oasVersion with name: $apiName"
-        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-    } else {
-        # If minor version is greater than 0, it's a revision
-        Write-Output "Creating a revision for API version $oasVersion"
-        $apiRevision = $oasVersion -replace '\.', '-'
-        $api = New-AzApiManagementApiRevision -Context $apimContext -ApiId $apiId -ApiRevision $apiRevision
+        Write-Output "Creating a new API for version $oasVersion"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
+    }
+    # Treat it as a major version change if minor version is greater than zero
+    else {
+        Write-Output "Creating a new API for version $oasVersion (treated as a major version change)"
+        $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName-v$majorVersion" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     }
 } else {
     Write-Error "Invalid version format: $oasVersion"
