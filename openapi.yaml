@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
-  title: PA Submission API
+  title: PA Submission API-v2
   description: |-
     Submission API is used for submitting the draft personal Auto Quotes.
-  version: 1.0.2
+  version: 2.0.0
 
 servers:
   - url: https://localhost/pa/quote/v1
