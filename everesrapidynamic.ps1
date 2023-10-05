@@ -16,7 +16,6 @@ $resourceGroupName = $config | Where-Object { $_.Key -eq "ResourceGroupName" } |
 $apiName = $config | Where-Object { $_.Key -eq "ApiName" } | Select-Object -ExpandProperty Value
 $apimName = $config | Where-Object { $_.Key -eq "ApimName" } | Select-Object -ExpandProperty Value
 $apiPolicyConfigFilePath = $config | Where-Object { $_.Key -eq "ApiPolicyConfigFilePath" } | Select-Object -ExpandProperty Value
-$apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-Object -ExpandProperty Value
 $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
 # Specify the path to your OAS file in the repository
@@ -54,9 +53,9 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     if ($minorVersion -eq 0) {
         Write-Output "Creating a new API for version $oasVersion"
         
-        # Construct the API path with a valid identifier
+        # Construct the API path with a valid identifier (replace dots with hyphens)
         $apiPath = "/$apiName-v$majorVersion"
-        $apiRevision = $oasVersion
+        $apiRevision = $oasVersion -replace '\.', '-'
 
         # Import API using the local file path and specify the -ApiRevision parameter
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiPath -Path $apiPath -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
@@ -65,7 +64,7 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     elseif ($minorVersion -gt 0) {
         Write-Output "Creating a revision for API version $oasVersion"
         
-        # Construct the API path with a valid identifier
+        # Construct the API path with a valid identifier (replace dots with hyphens)
         $apiPath = "/$apiName-v$majorVersion"
         $apiRevision = $oasVersion -replace '\.', '-'
 
