@@ -54,7 +54,6 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     if ($minorVersion -eq 0) {
         Write-Output "Creating a new API for version $oasVersion"
         
-        # Modify this part to create a new API version
         # Construct the API path with a valid identifier
         $apiPath = "/$apiName-v$majorVersion"
         $apiRevision = $oasVersion
@@ -66,7 +65,6 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     elseif ($minorVersion -gt 0) {
         Write-Output "Creating a revision for API version $oasVersion"
         
-        # Modify this part to create a revision
         # Construct the API path with a valid identifier
         $apiPath = "/$apiName-v$majorVersion"
         $apiRevision = $oasVersion -replace '\.', '-'
@@ -83,4 +81,4 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiPath -Policy $apiPolicies
 
-Write-Output "Script execution completed"
+Write-Output "Script execution completed."
