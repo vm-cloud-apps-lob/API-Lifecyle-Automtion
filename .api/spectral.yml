@@ -9,7 +9,7 @@ rules:
   operation-id-camel-case:
     given: "$.paths.*.*.operationId"
     message: "Operation IDs should be in camelCase"
-    severity: error
+    severity: "error" # Use "error" instead of error
     then:
       function: pattern
       functionOptions:
@@ -19,7 +19,7 @@ rules:
   paths-have-descriptions:
     given: "$.paths.*"
     message: "Paths should have descriptions"
-    severity: warning
+    severity: "warning" # Use "warning" instead of warning
     then:
       field: description
       function: truthy
@@ -29,7 +29,7 @@ rules:
   schemas-have-type:
     given: "$.components.schemas.*"
     message: "Schemas should have type properties"
-    severity: warning
+    severity: "warning" # Use "warning" instead of warning
     then:
       field: type
       function: truthy
@@ -38,7 +38,7 @@ rules:
   responses-have-description:
     given: "$.paths.*.*.responses.*"
     message: "Responses should have a description"
-    severity: warning
+    severity: "warning" # Use "warning" instead of warning
     then:
       field: description
       function: truthy
