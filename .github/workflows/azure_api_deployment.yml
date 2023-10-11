@@ -7,11 +7,11 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}  # Use a matrix strategy for different OS runners
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]  # List of OS runners to use
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - name: Checkout code
@@ -19,33 +19,39 @@ jobs:
 
     - name: Installing Dependencies
       run: |
-        if [ ${{ matrix.os }} == 'windows-latest' ]; then
+        if ($env:RUNNER_OS -eq "Windows") {
           # Use Windows-specific commands for setup
-          # For example, you can install Windows PowerShell modules
-        else
+        } else {
           # Use Linux-specific commands for setup
-          # For example, you can use 'apt-get' to install dependencies
           Install-Module -Name Az -Force -AllowClobber
           Import-Module -Name Az
           Uninstall-AzureRm
           Install-Module -Name powershell-yaml -Force
           Import-Module -Name powershell-yaml
+        }
+
+    - name: Generate Postman Collection
+      if: ${{ runner.os }} == 'ubuntu-latest'
+      uses: fluximus-prime/openapi-to-postman-action@v1.0.1
+      with:
+        postmanApiKey: ${{ secrets.POSTMAN_API_KEY }}
+        openApiSpec: openapi.yaml
 
     - name: Lint OpenAPI (Spectral)
-      if: startsWith(matrix.os, 'ubuntu')  # Only run on Linux
+      if: ${{ runner.os }} == 'ubuntu-latest'
       uses: morigs/lint-api-docs-action@v1.0.0
 
     - name: Publish OpenAPI Spec to Postman
-      if: startsWith(matrix.os, 'ubuntu')  # Only run on Linux
+      if: ${{ runner.os }} == 'ubuntu-latest'
       uses: aanimesh23/openapi-publish-action@v1
       with:
         collectionName: MyCollection
-        workspaceName: Api Lifecycle
-        postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
-        openApiSpec: openapi.yaml
+        workspaceName: MyWorkspace
+        postmanApiKey: ${{ secrets.POSTMAN_API_KEY }}
+        openApiSpec: path/to/openapi.yaml
 
     - name: Run PowerShell script
-      if: startsWith(matrix.os, 'windows')  # Only run on Windows
+      if: ${{ runner.os }} == 'windows-latest'
       run: |
         # Run your Windows-specific PowerShell script
         .\everesrapidynamic.ps1
