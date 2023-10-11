@@ -22,7 +22,7 @@ jobs:
       run: |
         # Download the Windows version of Spectral
         iwr https://github.com/stoplightio/spectral/releases/latest/download/spectral.exe -OutFile spectral.exe
-        .\spectral.exe lint openapi.yaml
+        .\spectral.exe lint openapi.yaml --ruleset spectral:oas
       working-directory: ${{ github.workspace }}
 
     - name: Installing Dependencies
