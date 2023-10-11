@@ -25,6 +25,8 @@ jobs:
         Uninstall-AzureRm
         Install-Module -Name powershell-yaml -Force
         Import-Module -Name powershell-yaml
+        npm install -g openapi-to-postman
+
       
     - name: Lint OpenAPI (Spectral)
       run: |
