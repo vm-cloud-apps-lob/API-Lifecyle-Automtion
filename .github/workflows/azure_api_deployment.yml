@@ -7,11 +7,16 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
 
     - name: Installing Dependencies
       run: |
@@ -23,7 +28,7 @@ jobs:
 
     - name: Convert OAS to Postman
       run: |
-        # You may need to adjust the path to the OAS spec file
+        npm install -g openapi-to-postman
         openapi-to-postman convert --path openapi.yaml
         mv converted.json .api/postman-collection.json
 
