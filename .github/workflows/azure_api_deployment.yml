@@ -26,7 +26,7 @@ jobs:
       uses: fluximus-prime/openapi-to-postman-action@v1.0.1
       with:
         postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
-        openApiSpec: .api/openapi.yaml
+        openApiSpec: openapi.yaml
 
     - name: Lint OpenAPI (Spectral)
       uses: morigs/lint-api-docs-action@v1.0.0
