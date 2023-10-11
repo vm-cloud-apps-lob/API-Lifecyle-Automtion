@@ -1,5 +1,5 @@
 # Define the path to your configuration file
-$configFile = "$env:GITHUB_WORKSPACE\config.txt"
+$configFile = Join-Path $env:GITHUB_WORKSPACE ".api\config.txt"
 
 # Read values from the configuration file
 $config = Get-Content -Path $configFile | ForEach-Object {
@@ -21,7 +21,7 @@ $apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-
 $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
 # Specify the path to your OAS file in the repository
-$oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
+$oasFilePath = Join-Path $env:GITHUB_WORKSPACE ".api\openapi.yaml"
 
 # Authenticate with Azure using Azure PowerShell
 Connect-AzAccount -UseDeviceAuthentication
