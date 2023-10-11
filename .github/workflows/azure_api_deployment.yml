@@ -31,7 +31,11 @@ jobs:
     - name: Import PSYaml Module
       run: |
         Import-Module -Name powershell-yaml
-        
+    - name: Generate Postman Collection
+      uses: fluximus-prime/openapi-to-postman-action@v1.0.1
+      with:
+        postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
+        openApiSpec: openapi.yaml     
     - run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
