@@ -21,16 +21,23 @@ jobs:
         Install-Module -Name powershell-yaml -Force
         Import-Module -Name powershell-yaml
 
-
     - name: Generate Postman Collection
       uses: fluximus-prime/openapi-to-postman-action@v1.0.1
       with:
-        postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
+        postmanApiKey: ${{ secrets.POSTMAN_API_KEY }}
         openApiSpec: openapi.yaml
 
     - name: Lint OpenAPI (Spectral)
       uses: morigs/lint-api-docs-action@v1.0.0
-        
+
+    - name: Publish OpenAPI Spec to Postman
+      uses: aanimesh23/openapi-publish-action@v1
+      with:
+        collectionName: MyCollection
+        workspaceName: Api Lifecycle
+        postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
+        openApiSpec: openapi.yaml
+
     - name: Run PowerShell script
       run: |
         # Run your PowerShell script
