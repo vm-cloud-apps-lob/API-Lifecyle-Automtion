@@ -30,8 +30,6 @@ jobs:
 
     - name: Lint OpenAPI (Spectral)
       uses: morigs/lint-api-docs-action@v1.0.0
-      with:
-        files-glob: '.api/openapi.yaml'
         
     - name: Run PowerShell script
       run: |
