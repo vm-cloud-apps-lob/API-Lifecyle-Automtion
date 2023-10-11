@@ -28,9 +28,9 @@ jobs:
 
     - name: Convert OAS to Postman
       run: |
-        npm install -g openapi-to-postman
-        openapi-to-postman convert --path openapi.yaml
-        mv converted.json .api/postman-collection.json
+        npm install -g openapi2postmanv2
+        npm install -g openapi2postmanv2 convert --path openapi.yaml
+        mv postman-collection.json .api/
 
     - name: Lint OpenAPI (Spectral)
       run: |
