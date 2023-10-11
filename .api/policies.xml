@@ -1,0 +1,5 @@
+<policies>
+    <inbound>
+        <rate-limit calls="1000" renewal-period="100" />
+    </inbound>
+</policies>
