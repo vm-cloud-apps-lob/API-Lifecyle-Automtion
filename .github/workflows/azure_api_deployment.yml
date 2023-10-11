@@ -30,13 +30,6 @@ jobs:
           Import-Module -Name powershell-yaml
         }
 
-    - name: Generate Postman Collection
-      if: ${{ runner.os }} == 'ubuntu-latest'
-      uses: fluximus-prime/openapi-to-postman-action@v1.0.1
-      with:
-        postmanApiKey: ${{ secrets.POSTMAN_API_KEY }}
-        openApiSpec: openapi.yaml
-
     - name: Lint OpenAPI (Spectral)
       if: ${{ runner.os }} == 'ubuntu-latest'
       uses: morigs/lint-api-docs-action@v1.0.0
