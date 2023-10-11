@@ -13,17 +13,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup PowerShell
-      uses: PowerShell/setup-powershell@v0.2.2
-      with:
-        pwsh: '7'
-        modules: 'Az,powershell-yaml'
+    - name: Installing Dependencies
+      run: |
+        Install-Module -Name Az -Force -AllowClobber
+        Import-Module -Name Az
+        Uninstall-AzureRm
+        Install-Module -Name powershell-yaml -Force
+        Import-Module -Name powershell-yaml
+
 
     - name: Generate Postman Collection
       uses: fluximus-prime/openapi-to-postman-action@v1.0.1
       with:
         postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
-        openApiSpec: openapi.yaml
+        openApiSpec: api/openapi.yaml
 
     - name: Lint OpenAPI (Spectral)
       uses: morigs/lint-api-docs-action@v1.0.0
