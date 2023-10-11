@@ -7,7 +7,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}  # Use a matrix strategy for different OS runners
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]  # List of OS runners to use
 
     steps:
     - name: Checkout code
@@ -15,16 +19,24 @@ jobs:
 
     - name: Installing Dependencies
       run: |
-        Install-Module -Name Az -Force -AllowClobber
-        Import-Module -Name Az
-        Uninstall-AzureRm
-        Install-Module -Name powershell-yaml -Force
-        Import-Module -Name powershell-yaml
+        if [ ${{ matrix.os }} == 'windows-latest' ]; then
+          # Use Windows-specific commands for setup
+          # For example, you can install Windows PowerShell modules
+        else
+          # Use Linux-specific commands for setup
+          # For example, you can use 'apt-get' to install dependencies
+          Install-Module -Name Az -Force -AllowClobber
+          Import-Module -Name Az
+          Uninstall-AzureRm
+          Install-Module -Name powershell-yaml -Force
+          Import-Module -Name powershell-yaml
 
     - name: Lint OpenAPI (Spectral)
+      if: startsWith(matrix.os, 'ubuntu')  # Only run on Linux
       uses: morigs/lint-api-docs-action@v1.0.0
 
     - name: Publish OpenAPI Spec to Postman
+      if: startsWith(matrix.os, 'ubuntu')  # Only run on Linux
       uses: aanimesh23/openapi-publish-action@v1
       with:
         collectionName: MyCollection
@@ -33,6 +45,7 @@ jobs:
         openApiSpec: openapi.yaml
 
     - name: Run PowerShell script
+      if: startsWith(matrix.os, 'windows')  # Only run on Windows
       run: |
-        # Run your PowerShell script
+        # Run your Windows-specific PowerShell script
         .\everesrapidynamic.ps1
