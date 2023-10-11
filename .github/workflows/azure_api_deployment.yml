@@ -39,11 +39,11 @@ jobs:
         node-version: 16
 
     - name: Install openapi2postmanv2
-      run: npm install -g openapi2postmanv2
+      run: npm install -g openapi-to-postmanv2
 
     - name: Convert OAS to Postman
       run: |
-        openapi2postmanv2 convert -o postman-collection.json openapi.yaml
+        openapi-to-postmanv2 convert -o postman-collection.json openapi.yaml
         echo "OAS specification has been converted to Postman collection"
 
     - name: Move Postman Collection to 'api' folder
