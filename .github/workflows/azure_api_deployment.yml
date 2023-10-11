@@ -21,12 +21,6 @@ jobs:
         Install-Module -Name powershell-yaml -Force
         Import-Module -Name powershell-yaml
 
-    - name: Generate Postman Collection
-      uses: fluximus-prime/openapi-to-postman-action@v1.0.1
-      with:
-        postmanApiKey: ${{ secrets.POSTMAN_API_KEY }}
-        openApiSpec: openapi.yaml
-
     - name: Lint OpenAPI (Spectral)
       uses: morigs/lint-api-docs-action@v1.0.0
 
