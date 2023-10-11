@@ -13,12 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Lint OpenAPI (Spectral)
-      run: |
-        # Install Spectral
-        npm install -g @stoplight/spectral
-        spectral lint --ruleset .api/spectral.yml openapi.yaml
-
     - name: Installing Dependencies
       run: |
         Install-Module -Name Az -Force -AllowClobber
@@ -27,26 +21,19 @@ jobs:
         Install-Module -Name powershell-yaml -Force
         Import-Module -Name powershell-yaml
 
+    - name: Convert OAS to Postman
+      run: |
+        # You may need to adjust the path to the OAS spec file
+        openapi-to-postman convert --path path/to/openapi.yaml
+        mv converted.json .api/postman-collection.json
+
+    - name: Lint OpenAPI (Spectral)
+      run: |
+        # Install Spectral
+        npm install -g @stoplight/spectral
+        spectral lint --ruleset .api/spectral.yml path/to/openapi.yaml
+
     - name: Run PowerShell script
       run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
-
-  generate_postman:
-    needs: build  # Wait for the 'build' job to finish
-    runs-on: windows-2019
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-
-    - name: Install Newman
-      run: npm install -g newman
-
-    - name: Convert OAS to Postman
-      run: newman run openapi.yaml -e PostmanEnvironment.json --reporters cli,json --reporter-json-export api/postman-output.json
