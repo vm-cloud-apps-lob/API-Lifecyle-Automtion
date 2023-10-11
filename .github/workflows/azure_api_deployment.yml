@@ -33,11 +33,8 @@ jobs:
         npm install -g @stoplight/spectral
         spectral lint --ruleset .api/spectral.yml openapi.yaml
 
-    - name: Install api-spec-converter
-      run: |
-        npm install -g api-spec-converter
-        api-spec-converter --from=openapi_3 --to=swagger_2 --syntax=json --order=openapi openapi.yaml > swagger.json
-      
+    - name: Convert OpenAPI to Postman Collection
+      run: openapi-to-postmanv2 convert -o postman-collection.json openapi.yaml      
 
     - name: Run PowerShell script
       run: |
