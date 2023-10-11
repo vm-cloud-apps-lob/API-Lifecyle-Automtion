@@ -13,12 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Run Spectral Validation
+    - name: Lint OpenAPI (Spectral)
       run: |
-        # Download the Windows version of Spectral
-        iwr https://github.com/stoplightio/spectral/releases/latest/download/spectral.exe -OutFile spectral.exe
-        .\spectral.exe lint openapi.yaml --config .api/spectral.yml
-      working-directory: ${{ github.workspace }}
+        # Install Spectral
+        npm install -g @stoplight/spectral
+        spectral lint --ruleset .api/spectral.yml openapi.yaml
 
     - name: Installing Dependencies
       run: |
