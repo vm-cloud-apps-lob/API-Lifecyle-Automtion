@@ -84,13 +84,4 @@ Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolici
 # Associate the API with the existing product "Unlimited"
 Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
-# Define the path to the downloaded OAS file in your repository
-$oasFilePath = Join-Path $env:GITHUB_WORKSPACE "openapi.yaml"
-
-# Define the path to your Postman environment file in the .api folder
-$environmentFilePath = Join-Path $env:GITHUB_WORKSPACE ".api\PostmanEnvironment.json"
-
-# Execute the OpenAPI to Postman conversion using the openapi-to-postman command
-Start-Process -FilePath openapi-to-postman -ArgumentList "convert --path $oasFilePath --env $environmentFilePath"
-
 Write-Output "Script execution completed."
