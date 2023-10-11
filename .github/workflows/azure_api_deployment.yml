@@ -43,7 +43,7 @@ jobs:
 
     - name: Convert OAS to Postman
       run: |
-        /usr/local/bin/openapi-to-postmanv2 convert -o postman-collection.json openapi.yaml
+        .\openapi-to-postmanv2.exe convert -o postman-collection.json openapi.yaml
         working-directory: $GITHUB_WORKSPACE
 
     - name: Move Postman Collection to 'api' folder
