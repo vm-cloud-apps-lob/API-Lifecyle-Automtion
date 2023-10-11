@@ -12,30 +12,23 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-        
-    - name: Install Az module
-      run: Install-Module -Name Az -Force -AllowClobber
 
-    - name: Import Az Module
-      run: |
-        Import-Module -Name Az
+    - name: Setup PowerShell
+      uses: PowerShell/setup-powershell@v0.2.2
+      with:
+        pwsh: '7'
+        modules: 'Az,powershell-yaml'
 
-    - name: Uninstall AzureRm module
-      run: |
-        Uninstall-AzureRm
-
-    - name: Install PSYaml Module
-      run: |
-        Install-Module -Name powershell-yaml -Force
-
-    - name: Import PSYaml Module
-      run: |
-        Import-Module -Name powershell-yaml
     - name: Generate Postman Collection
       uses: fluximus-prime/openapi-to-postman-action@v1.0.1
       with:
         postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
-        openApiSpec: openapi.yaml     
-    - run: |
+        openApiSpec: openapi.yaml
+
+    - name: Lint OpenAPI (Spectral)
+      uses: morigs/lint-api-docs-action@v1.0.0
+
+    - name: Run PowerShell script
+      run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
