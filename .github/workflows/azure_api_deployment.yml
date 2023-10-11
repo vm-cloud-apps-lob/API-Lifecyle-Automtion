@@ -33,22 +33,6 @@ jobs:
         npm install -g @stoplight/spectral
         spectral lint --ruleset .api/spectral.yml openapi.yaml
 
-    - name: Install Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-
-    - name: Install openapi2postmanv2
-      run: npm install -g openapi-to-postmanv2
-
-    - name: Convert OAS to Postman
-      run: |
-        .\openapi-to-postmanv2.exe convert -o postman-collection.json openapi.yaml
-        working-directory: $GITHUB_WORKSPACE
-
-    - name: Move Postman Collection to 'api' folder
-      run: mv postman-collection.json .api/     
-
     - name: Run PowerShell script
       run: |
         # Run your PowerShell script
