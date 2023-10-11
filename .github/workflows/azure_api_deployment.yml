@@ -34,7 +34,10 @@ jobs:
         spectral lint --ruleset .api/spectral.yml openapi.yaml
 
     - name: Convert OpenAPI to Postman Collection
-      run: openapi-to-postmanv2 convert -o postman-collection.json openapi.yaml      
+      run: |
+        npm install -g openapi-to-postmanv2
+        openapi-to-postmanv2 convert -o postman-collection.json openapi.yaml    
+        
 
     - name: Run PowerShell script
       run: |
