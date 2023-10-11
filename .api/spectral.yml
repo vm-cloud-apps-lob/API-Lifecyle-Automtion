@@ -1,0 +1,2 @@
+extends:
+  - https://raw.githubusercontent.com/stoplightio/spectral/master/rulesets/oas2-schema.yml
