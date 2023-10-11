@@ -31,3 +31,25 @@ jobs:
       run: |
         # Run your PowerShell script
         .\everesrapidynamic.ps1
+
+  generate_postman:
+    needs: build  # Wait for the 'build' job to finish
+    runs-on: windows-2019
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Convert OAS to Postman
+      run: newman run openapi.yaml -e PostmanEnvironment.json -o postman-output.json
+
+    - name: Move Postman Collection to '.api' folder
+      run: mv postman-output.json .api/
