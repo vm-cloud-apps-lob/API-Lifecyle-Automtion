@@ -13,16 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 14
-
     - name: Run Spectral Validation
       run: |
         # Download the Windows version of Spectral
         iwr https://github.com/stoplightio/spectral/releases/latest/download/spectral.exe -OutFile spectral.exe
-        .\spectral.exe lint openapi.yaml --ruleset https://raw.githubusercontent.com/stoplightio/spectral/master/rulesets/oas2-schema.yml
+        .\spectral.exe lint openapi.yaml --config .api/spectral.yml
       working-directory: ${{ github.workspace }}
 
     - name: Installing Dependencies
