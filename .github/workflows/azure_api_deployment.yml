@@ -25,12 +25,6 @@ jobs:
         Uninstall-AzureRm
         Install-Module -Name powershell-yaml -Force
         Import-Module -Name powershell-yaml
-
-    - name: openapi-to-postman-action
-      uses: fluximus-prime/openapi-to-postman-action@v1.0.1
-      with:
-        postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
-        openApiSpec: openapi.yml
       
     - name: Lint OpenAPI (Spectral)
       run: |
