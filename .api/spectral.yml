@@ -23,3 +23,22 @@ rules:
     then:
       field: description
       function: truthy
+
+  # Additional basic rules:
+  # Check that all schemas use type properties
+  schemas-have-type:
+    given: "$.components.schemas.*"
+    message: "Schemas should have type properties"
+    severity: warning
+    then:
+      field: type
+      function: truthy
+
+  # Check that responses have a description
+  responses-have-description:
+    given: "$.paths.*.*.responses.*"
+    message: "Responses should have a description"
+    severity: warning
+    then:
+      field: description
+      function: truthy
