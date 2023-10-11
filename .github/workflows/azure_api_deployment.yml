@@ -7,11 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: windows-2019
 
     steps:
     - name: Checkout code
@@ -19,32 +15,26 @@ jobs:
 
     - name: Installing Dependencies
       run: |
-        if ($env:RUNNER_OS -eq "Windows") {
-          # Use Windows-specific commands for setup
-        } else {
-          # Use Linux-specific commands for setup
-          Install-Module -Name Az -Force -AllowClobber
-          Import-Module -Name Az
-          Uninstall-AzureRm
-          Install-Module -Name powershell-yaml -Force
-          Import-Module -Name powershell-yaml
-        }
+        Install-Module -Name Az -Force -AllowClobber
+        Import-Module -Name Az
+        Uninstall-AzureRm
+        Install-Module -Name powershell-yaml -Force
+        Import-Module -Name powershell-yaml
 
-    - name: Lint OpenAPI (Spectral)
-      if: ${{ runner.os }} == 'ubuntu-latest'
-      uses: morigs/lint-api-docs-action@v1.0.0
+    - name: Run spectral lint
+      uses: ahmetgeymen/spectral-lint-action@v1.0
+      with:
+        file_path: openapi.yml
 
     - name: Publish OpenAPI Spec to Postman
-      if: ${{ runner.os }} == 'ubuntu-latest'
       uses: aanimesh23/openapi-publish-action@v1
       with:
         collectionName: MyCollection
-        workspaceName: MyWorkspace
-        postmanApiKey: ${{ secrets.POSTMAN_API_KEY }}
-        openApiSpec: path/to/openapi.yaml
+        workspaceName: Api Lifecycle
+        postmanApiKey: PMAK-652680f168a9e70afa583323-d8369fb2eb8babf7734a63193df75fd0d4
+        openApiSpec: openapi.yaml
 
     - name: Run PowerShell script
-      if: ${{ runner.os }} == 'windows-latest'
       run: |
-        # Run your Windows-specific PowerShell script
+        # Run your PowerShell script
         .\everesrapidynamic.ps1
