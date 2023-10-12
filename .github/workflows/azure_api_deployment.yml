@@ -36,7 +36,7 @@ jobs:
     - name: Convert OpenAPI to Postman Collection
       run: |
         npm install -g openapi-to-postmanv2
-        openapi2postmanv2 -s spec.yaml -o .api/collection.json -p -O requestParametersResolution=Example,optimizeConversion=false,stackLimit=50
+        openapi2postmanv2 -s openapi.yaml -o .api/collection.json -p -O requestParametersResolution=Example,optimizeConversion=false,stackLimit=50
 
     - name: Run PowerShell script
       run: |
