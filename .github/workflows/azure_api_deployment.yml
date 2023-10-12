@@ -39,5 +39,6 @@ jobs:
 
     - name: Run PowerShell script
       run: |
+        Set-Location -Path .api
         # Run your PowerShell script
         .\everesrapidynamic.ps1
