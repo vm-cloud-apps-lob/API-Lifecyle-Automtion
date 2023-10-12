@@ -25,17 +25,16 @@ jobs:
         Uninstall-AzureRm
         Install-Module -Name powershell-yaml -Force
         Import-Module -Name powershell-yaml
-
+        npm install -g @stoplight/spectral
+        npm install -g openapi-to-postmanv2
       
-    - name: Lint OpenAPI (Spectral)
+    - name: API Specification Validation (Spectral)
       run: |
         # Install Spectral
-        npm install -g @stoplight/spectral
         spectral lint --ruleset .api/spectral.yml openapi.yaml
 
-    - name: Convert OpenAPI to Postman Collection
+    - name: Generate Postman Collection
       run: |
-        npm install -g openapi-to-postmanv2
         openapi2postmanv2 -s openapi.yaml -o .api/collection.json -p -O requestParametersResolution=Example,optimizeConversion=false,stackLimit=50
 
     - name: Run PowerShell script
