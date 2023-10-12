@@ -36,7 +36,7 @@ jobs:
     - name: Convert OpenAPI to Postman Collection
       run: |
         npm install -g openapi-to-postmanv2
-        openapi2postmanv2 -s openapi.yaml -o collection.json -p -O folderStrategy=Tags,includeAuthInfoInExample=false   
+        openapi-to-postmanv2 -s openapi.yaml -o .api/collection.json   
         
 
     - name: Run PowerShell script
