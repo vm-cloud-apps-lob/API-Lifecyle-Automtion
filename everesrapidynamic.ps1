@@ -1,5 +1,5 @@
 # Define the path to your configuration file
-$configFile = Join-Path $env:GITHUB_WORKSPACE ".api\config.txt"
+$configFile = Join-Path $env:GITHUB_WORKSPACE ".api\config.properties"
 
 # Read values from the configuration file
 $config = Get-Content -Path $configFile | ForEach-Object {
