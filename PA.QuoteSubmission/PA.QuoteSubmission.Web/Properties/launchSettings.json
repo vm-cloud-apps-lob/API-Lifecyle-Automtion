@@ -1,0 +1,29 @@
+{
+  "profiles": {
+    "PA.QuoteSubmission.Web": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DAPR_GRPC_PORT": "4001"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7004;http://localhost:5217"
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  },
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:42530",
+      "sslPort": 44387
+    }
+  }
+}

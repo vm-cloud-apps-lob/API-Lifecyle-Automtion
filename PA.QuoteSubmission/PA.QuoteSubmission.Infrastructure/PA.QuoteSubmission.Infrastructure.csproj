@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapr.Client" Version="1.11.0" />
+    <PackageReference Include="Dapr.Workflow" Version="1.11.0" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
+	<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.34.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\microservice.SharedKernel\PA.QuoteSubmission.SharedKernel.csproj" />
+    <ProjectReference Include="..\PA.QuoteSubmission.Core\PA.QuoteSubmission.Core.csproj" />
+  </ItemGroup>
+
+</Project>

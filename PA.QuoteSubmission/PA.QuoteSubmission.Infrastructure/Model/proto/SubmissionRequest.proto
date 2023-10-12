@@ -1,0 +1,16 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "pa.qoute.sub.proto.v1";
+
+message GrpcSubmission {
+    string submissionId;
+    string quoteNumber;
+    string productName;
+    string riskState;
+    message agent{
+        string agentName;
+        string contractNumber;
+        string producerSubCode;
+
+    }
+} 

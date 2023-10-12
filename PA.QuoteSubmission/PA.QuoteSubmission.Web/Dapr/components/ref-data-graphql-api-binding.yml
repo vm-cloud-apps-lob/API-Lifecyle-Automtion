@@ -1,0 +1,12 @@
+﻿apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: ReferenceDataEndpoint
+spec:
+  type: bindings.graphql
+  version: v1
+  metadata:
+    - name: endpoint
+      value: "https://countries.trevorblades.com/graphql"
+    - name: direction
+      value: "output"

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="7.0.1" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SubmissionAggregate\Commands\Handler\" />
+    <Folder Include="SubmissionAggregate\Commands\Request\" />
+    <Folder Include="SubmissionAggregate\EventHandlers\" />
+    <Folder Include="SubmissionAggregate\Events\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\microservice.SharedKernel\PA.QuoteSubmission.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+﻿apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: ActorStateStore
+spec:
+  type: state.azure.cosmosdb
+  version: v1
+  metadata:
+  - name: url
+    value: "https://submissions-cosmos-account.documents.azure.com:443/"
+  - name: masterKey
+    value: "6ymbAvEQB1XpZUvCP4kdHQNJpQ1Uo0rTRB8uCVF1QlMCmCBIatU2iOJh5fGbfrlNYXwcBhY4QKdzACDbMZdBEA=="
+  - name: database
+    value: "submissions-database"
+  - name: collection
+    value: "sample"
+  - name: actorStateStore
+    value: "true"
