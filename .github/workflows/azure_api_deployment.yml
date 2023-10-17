@@ -18,6 +18,13 @@ jobs:
       with:
         node-version: 16
 
+    - name: Configure Git
+      run: |
+        git config --global user.email "vamsi.sapireddy@outlook.com"
+        git config --global user.name "vamsi560"
+      env:
+        CI: true
+
     - name: Installing Dependencies
       run: |
         Install-Module -Name Az -Force -AllowClobber
