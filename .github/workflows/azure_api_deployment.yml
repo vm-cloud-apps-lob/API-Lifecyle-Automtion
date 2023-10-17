@@ -10,52 +10,54 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
 
-    - name: Configure Git
-      run: |
-        git config --global user.email "vamsi.sapireddy@outlook.com"
-        git config --global user.name "vamsi560"
-      env:
-        CI: true
+      - name: Configure Git
+        run: |
+          git config --global user.email "vamsi.sapireddy@outlook.com"
+          git config --global user.name "vamsi560"
+        env:
+          CI: true
 
-    - name: Installing Dependencies
-      run: |
-        Install-Module -Name Az -Force -AllowClobber
-        Import-Module -Name Az
-        Uninstall-AzureRm
-        Install-Module -Name powershell-yaml -Force
-        Import-Module -Name powershell-yaml
-        npm install -g @stoplight/spectral
-        npm install -g openapi-to-postmanv2
+      - name: Installing Dependencies
+        run: |
+          Install-Module -Name Az -Force -AllowClobber
+          Import-Module -Name Az
+          Uninstall-AzureRm
+          Install-Module -Name powershell-yaml -Force
+          Import-Module -Name powershell-yaml
+          npm install -g @stoplight/spectral
+          npm install -g openapi-to-postmanv2
 
-    - name: Generate Postman Collection
-      run: |
-        openapi2postmanv2 -s openapi.yaml -o .api/collection.json -p -O requestParametersResolution=Example,optimizeConversion=false,stackLimit=50
+      - name: Generate Postman Collection
+        run: |
+          openapi2postmanv2 -s openapi.yaml -o .api/collection.json -p -O requestParametersResolution=Example,optimizeConversion=false,stackLimit=50
 
-    - name: Generate Postman collection from OpenAPI file
-      run: |
-        openapi2postmanv2 -s openapi.yaml -o .api/postman_collection.json
+      - name: Generate Postman collection from OpenAPI file
+        run: |
+          openapi2postmanv2 -s openapi.yaml -o .api/postman_collection.json
 
-    - name: Run PowerShell script
-      run: |
-        Set-Location -Path .api
-        # Run your PowerShell script
-        .\everesrapidynamic.ps1
+      - name: Run PowerShell script
+        run: |
+          Set-Location -Path .api
+          # Run your PowerShell script
+          .\everesrapidynamic.ps1
 
-    - name: API Specification Validation (Spectral)
-      run: |
-        # Install Spectral
-        spectral lint --ruleset .api/spectral.yml openapi.yaml
+      - name: API Specification Validation (Spectral)
+        run: |
+          # Install Spectral
+          spectral lint --ruleset .api/spectral.yml openapi.yaml
 
-    - name: Commit Postman collection to GitHub repository
-      run: |
-        git add .api/postman_collection.json
-        git commit -m "Add Postman collection"
-        git push
+      - name: Commit Postman collection to GitHub repository
+        run: |
+          git add .api/postman_collection.json
+          git commit -m "Add Postman collection"
+          git push
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
