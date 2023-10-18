@@ -28,6 +28,14 @@ jobs:
         # Only restore the cache on the first job in the workflow
         if: runner.job == steps.build.id
 
+      - name: Cache npm modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            $env:USERPROFILE\.npm\*
+          key: modules-npm-${{ runner.os }}
+        if: runner.job == steps.build.id
+
       - name: Installing Dependencies
         run: |
           # Check if the modules are cached and CODESPACES is not set (not in GitHub Codespaces)
