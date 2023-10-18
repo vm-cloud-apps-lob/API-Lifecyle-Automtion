@@ -18,30 +18,22 @@ jobs:
         with:
           node-version: 16
 
-      - name: Cache PowerShell modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            $env:ProgramFiles\PackageManagement\NuGet\Packages\*
-            $env:LOCALAPPDATA\PackageManagement\NuGet\Packages\*
-          key: modules-${{ runner.os }}
-        # Only restore the cache on the first job in the workflow
-        if: runner.job == steps.build.id
+      - name: Configure Git
+        run: |
+          git config --global user.email "vamsi.sapireddy@outlook.com"
+          git config --global user.name "vamsi560"
+        env:
+          CI: true
 
       - name: Installing Dependencies
         run: |
-          # Check if the modules are cached and CODESPACES is not set (not in GitHub Codespaces)
-          if (-not (Test-Path "$env:ProgramFiles\PackageManagement\NuGet\Packages\*") -and -not $env:CODESPACES) {
-            Install-Module -Name Az -Force -AllowClobber -Scope CurrentUser
-            Import-Module Az
-            Uninstall-AzureRm
-            Install-Module -Name powershell-yaml -Force
-            Import-Module -Name powershell-yaml
-            npm install -g @stoplight/spectral
-            npm install -g openapi-to-postmanv2
-          }
-        env:
-          CODESPACES: ${{ runner.os }}
+          Install-Module -Name Az -Force -AllowClobber
+          Import-Module -Name Az
+          Uninstall-AzureRm
+          Install-Module -Name powershell-yaml -Force
+          Import-Module -Name powershell-yaml
+          npm install -g @stoplight/spectral
+          npm install -g openapi-to-postmanv2
 
       - name: Generate Postman collection from OpenAPI file
         run: |
@@ -49,8 +41,6 @@ jobs:
 
       - name: Commit Postman collection to GitHub repository
         run: |
-          git config --local user.email "vamsi.sapireddy@outlook.com"
-          git config --local user.name "vamsi560"
           git add .api/postman_collection.json
           git commit -m "Add Postman collection"
           git push
