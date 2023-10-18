@@ -30,8 +30,8 @@ jobs:
 
       - name: Installing Dependencies
         run: |
-          # Only install if the cache is not restored
-          if [ -z "$CODESPACES" ]; then
+          # Check if the modules are cached and CODESPACES is not set (not in GitHub Codespaces)
+          if (-not (Test-Path "$env:ProgramFiles\PackageManagement\NuGet\Packages\*") -and -not $env:CODESPACES) {
             Install-Module -Name Az -Force -AllowClobber -Scope CurrentUser
             Import-Module Az
             Uninstall-AzureRm
@@ -39,7 +39,9 @@ jobs:
             Import-Module -Name powershell-yaml
             npm install -g @stoplight/spectral
             npm install -g openapi-to-postmanv2
-          fi
+          }
+        env:
+          CODESPACES: ${{ runner.os }}
 
       - name: Generate Postman collection from OpenAPI file
         run: |
