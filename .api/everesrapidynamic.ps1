@@ -93,5 +93,10 @@ $apiContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -
 # Update the backend URL for the API
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
+# Create a new API release
+New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $apiRevision -Note "Releasing version $apiRevision"
+
+# Explicitly set the backend URL to ensure consistency
+Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
 Write-Output "Script execution completed."
