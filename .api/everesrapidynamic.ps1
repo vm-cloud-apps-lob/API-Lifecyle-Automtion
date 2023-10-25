@@ -1,5 +1,5 @@
 # Define the path to your configuration file
-$configFile = Join-Path $env:GITHUB_WORKSPACE ".api\config.properties"
+$configFile = "C:\Users\VMADMIN\POC\config.txt"
 
 # Read values from the configuration file
 $config = Get-Content -Path $configFile | ForEach-Object {
@@ -21,10 +21,10 @@ $apiVisibility = $config | Where-Object { $_.Key -eq "ApiVisibility" } | Select-
 $postmanCollectionFilePath = $config | Where-Object { $_.Key -eq "PostmanCollectionFilePath" } | Select-Object -ExpandProperty Value
 
 # Specify the path to your OAS file in the repository
-$oasFilePath = "$env:GITHUB_WORKSPACE\openapi.yaml"
+$oasFilePath = "C:\Users\VMADMIN\POC\openapi.yaml"
 
 # Authenticate with Azure using Azure PowerShell
-Connect-AzAccount -UseDeviceAuthentication
+Connect-AzAccount
 
 # Check if authentication was successful
 if ($?) {
@@ -84,8 +84,14 @@ Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolici
 # Associate the API with the existing product "Unlimited"
 Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
-# Set the desired backend URL
-$backendUrl = "https://everestbackoffice.purplestone-8fff94ef.eastus.azurecontainerapps.io"
+# Define the backend service name
+$backendServiceName = "ContainerApp_everestbackoffice"
+
+# Fetch the backend service details
+$backendService = Get-AzApiManagementBackend -Context $apimContext -ApiId $apiId -BackendId $backendServiceName
+
+# Get the backend URL
+$backendUrl = $backendService.Properties.Url
 
 # Set the API context
 $apiContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
