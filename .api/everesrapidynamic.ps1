@@ -84,8 +84,12 @@ Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolici
 # Associate the API with the existing product "Unlimited"
 Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
-# Set the desired backend URL
-$backendUrl = "https://everestbackoffice.purplestone-8fff94ef.eastus.azurecontainerapps.io"
+# Fetch the backend URL from the specified backend service
+$backendServiceName = "ContainerApp_everestbackoffice"
+$backendService = Get-AzApiManagementBackend -Context $apimContext -ApiId $apiId -BackendId $backendServiceName
+
+# Get the backend URL
+$backendUrl = $backendService.Properties.Protocol + "://" + $backendService.Properties.ResourceId
 
 # Set the API context
 $apiContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
