@@ -52,6 +52,11 @@ jobs:
           # Install Spectral
           spectral lint --ruleset .api/spectral.yml openapi.yaml
 
+      - name: Validate API Management policies
+        uses: azure/api-management-policy-snippets/actions/validate-policies@v1
+        with:
+          policy-file: .api/policies.xml
+
       - name: Run PowerShell script
         run: |
           Set-Location -Path .api
