@@ -27,6 +27,8 @@ jobs:
 
       - name: Installing Dependencies
         run: |
+          Install-Module -Name Az -force -AllowClobber
+          Import-Module -Name -Az
           Install-Module -Name powershell-yaml -Force
           Import-Module -Name powershell-yaml
           npm install -g @stoplight/spectral
