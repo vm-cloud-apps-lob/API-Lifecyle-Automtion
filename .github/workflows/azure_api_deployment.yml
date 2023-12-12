@@ -14,7 +14,7 @@ jobs:
 
       - name: Azure login
         run: |
-          Connect-AzAccount -UseDeviceAuthentication
+          az login --use-device-code
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
