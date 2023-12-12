@@ -27,9 +27,9 @@ jobs:
 
       - name: Installing Dependencies
         run: |
+          Uninstall-AzureRm
           Install-Module -Name Az -Force -AllowClobber
           Import-Module -Name Az
-          Uninstall-AzureRm
           Install-Module -Name powershell-yaml -Force
           Import-Module -Name powershell-yaml
           npm install -g @stoplight/spectral
