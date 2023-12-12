@@ -12,8 +12,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up PowerShell
-        uses: azure/setup-powershell@v1
+      - name: Azure login
+        run: |
+          Connect-AzAccount -UseDeviceAuthentication
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
