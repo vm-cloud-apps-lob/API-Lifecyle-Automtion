@@ -99,7 +99,4 @@ New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $a
 # Explicitly set the backend URL to ensure consistency
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
-#Publishing the developer portal
-Publish-AzApiManagementPortal -ResourceGroupName $resourceGroupName -ServiceName $apimName
-
 Write-Output "Script execution completed."
