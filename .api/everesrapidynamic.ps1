@@ -99,4 +99,8 @@ New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $a
 # Explicitly set the backend URL to ensure consistency
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
+Publish-AzApiManagementTenantGitRepository -ResourceGroupName $resourceGroupName -ServiceName $apimName -PortalGitRepositoryId "developer-portal" -GitBranch "main" -GitRepositoryUrl "
+https://github.com/vamsi560/API-Lifecycle-Automation-Demo.git"
+-GitUsername "vamsi560" -GitPassword "Devops@151"
+
 Write-Output "Script execution completed."
