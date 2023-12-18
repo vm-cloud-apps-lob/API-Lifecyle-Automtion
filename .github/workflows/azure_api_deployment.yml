@@ -35,10 +35,7 @@ jobs:
       - name: Generate Postman collection from OpenAPI file
         run: |
           openapi2postmanv2 -s openapi.yaml -o .api/postman_collection.json
-          $json = Get-Content -Raw -Path .api/postman_collection.json | ConvertFrom-Json
-          $formattedJson = ConvertTo-Json $json -Depth 10
-          $formattedJson | Out-File -FilePath .api/formatted-postman-collection.json -Force
-
+          
       - name: Commit Postman collection to GitHub repository
         run: |
           git add .api/postman_collection.json
