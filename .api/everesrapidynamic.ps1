@@ -99,27 +99,17 @@ New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $a
 # Explicitly set the backend URL to ensure consistency
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
-# Define the SAS token
-$sasToken = "SharedAccessSignature integration&20240118073923&P6+VKRXfPSViMi7drNM3Z+T8pxd8jRaFLiNMQsuW0XrDOo05d4tjA5lZsITpgpgv0tIuC5pbf2y7vScQelQT+Q=="
+$userID = "1"
 
-# Define the API endpoint for publishing
-$publishEndpoint = "https://everest-apim-demo.developer.azure-api.net/publish"
+# Get the SAS token
+$accessToken = Get-AzApiManagementAccessToken -ResourceGroupName $resourceGroupName -ServiceName $apimName -UserId $userID
 
-# Assuming you have the SAS token in $sasToken variable
+# Publish the developer portal
+$uri = "https://$serviceName.developer.azure-api.net/publish"
 $headers = @{
-    'Authorization' = $sasToken
-    'Content-Type'  = 'application/json'
+    "Authorization" = "SharedAccessSignature $accessToken"
+    "Content-Type" = "application/json"
 }
-
-# Make the HTTP request to trigger publishing
-try {
-    $response = Invoke-RestMethod -Uri $publishEndpoint -Method Post -Headers $headers
-    Write-Output "Publishing successful. Response: $response"
-}
-catch {
-    $errorMessage = $_.Exception.Message
-    Write-Error "Error during publishing. Details: $errorMessage"
-    exit 1
-}
+Invoke-RestMethod -Uri $uri -Method POST -Headers $headers
 
 Write-Output "Script execution completed."
