@@ -99,4 +99,28 @@ New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $a
 # Explicitly set the backend URL to ensure consistency
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
+# Define the SAS token
+$sasToken = "SharedAccessSignature integration&20240118073923&P6+VKRXfPSViMi7drNM3Z+T8pxd8jRaFLiNMQsuW0XrDOo05d4tjA5lZsITpgpgv0tIuC5pbf2y7vScQelQT+Q=="
+
+# Define the API endpoint for publishing
+$publishEndpoint = "https://everest-apim-demo.developer.azure-api.net/publish"
+
+# Set up headers with the SAS token
+$headers = @{
+    "Authorization" = $sasToken
+    "Content-Type"  = "application/json"
+}
+
+# Make the HTTP request to trigger publishing
+$response = Invoke-RestMethod -Uri $publishEndpoint -Method Post -Headers $headers
+
+# Check the response
+if ($response -eq "OK") {
+    Write-Output "Publishing successful."
+} else {
+    Write-Error "Publishing failed. Response: $response"
+    exit 1
+}
+
+
 Write-Output "Script execution completed."
