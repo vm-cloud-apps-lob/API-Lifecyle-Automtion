@@ -38,6 +38,7 @@ jobs:
           
       - name: Commit Postman collection to GitHub repository
         run: |
+          git pull
           git add .api/postman_collection.json
           git commit -m "Add Postman collection"
           git push
