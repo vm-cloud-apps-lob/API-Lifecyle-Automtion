@@ -1,6 +1,10 @@
 <policies>
     <inbound>
         <xml-to-json kind="direct" apply="always" consider-accept-header="false" />
+        <rate-limit calls="10" renewal-period="60" />
     </inbound>
+    <outbound>
+        <set-status code="202" reason="Accepted" />
+    </outbound>
 </policies>
 
