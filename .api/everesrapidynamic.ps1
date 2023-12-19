@@ -114,6 +114,17 @@ $headers = @{
 # Make the HTTP request to trigger publishing
 $response = Invoke-RestMethod -Uri $publishEndpoint -Method Post -Headers $headers
 
+# Make the HTTP request to trigger publishing
+try {
+    $response = Invoke-RestMethod -Uri $publishEndpoint -Method Post -Headers $headers
+    Write-Output "Publishing successful. Response: $response"
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-Error "Error during publishing. Details: $errorMessage"
+    exit 1
+}
+
 # Check the response
 if ($response -eq "OK") {
     Write-Output "Publishing successful."
