@@ -99,10 +99,8 @@ New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $a
 # Explicitly set the backend URL to ensure consistency
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
-$userID = "1"
-
 # Get the SAS token
-$accessToken = Get-AzApiManagementAccessToken -ResourceGroupName $resourceGroupName -ServiceName $apimName -UserId $userID
+$accessToken = SharedAccessSignature integration&20240118073923&P6+VKRXfPSViMi7drNM3Z+T8pxd8jRaFLiNMQsuW0XrDOo05d4tjA5lZsITpgpgv0tIuC5pbf2y7vScQelQT+Q==
 
 # Publish the developer portal
 $uri = "https://$serviceName.developer.azure-api.net/publish"
