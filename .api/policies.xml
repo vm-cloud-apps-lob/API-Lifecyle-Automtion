@@ -1,7 +1,6 @@
-<inbound>
-   <set-headername="Ocp-Apim-Subscription-Key" exists-action="delete"/>
-</inbound>
-<outbound>
-   <set-header name="X-Powered-By" exists-action="delete" />
-   <set-header name="X-AspNet-Version" exists-action="delete" />
-</outbound>
+<policies>
+    <inbound>
+        <xml-to-json kind="direct" apply="always" consider-accept-header="false" />
+    </inbound>
+</policies>
+
