@@ -1,5 +1,24 @@
-<policies>
-    <inbound>
-        <rate-limit calls="1000" renewal-period="100" />
-    </inbound>
-</policies>
+<inbound>
+   <set-headername="Ocp-Apim-Subscription-Key" exists-action="delete"/>
+   <cors>
+      <allowed-origins>
+         <origin>https://everest-apim-demo.developer.azure-api.net</origin>
+      </allowed-origins>
+      <allowed-methods>
+         <method>GET</method>
+         <method>POST</method>
+         <method>PUT</method>
+         <method>DELETE</method>
+         <method>HEAD</method>
+         <method>OPTIONS</method>
+         <method>PATCH</method>
+         <method>TRACE</method>
+      </allowed-methods>
+      <allowed-headers>
+         <header>*</header>
+      </allowed-headers>
+      <expose-headers>
+         <header>*</header>
+      </expose-headers>
+   </cors>
+</inbound>
