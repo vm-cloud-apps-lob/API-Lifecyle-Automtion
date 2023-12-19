@@ -26,6 +26,7 @@ jobs:
 
       - name: Installing Dependencies
         run: |
+          az login --use-device-code
           Install-Module -Name Az -force -AllowClobber
           Install-Module -Name powershell-yaml -Force
           Import-Module -Name powershell-yaml
