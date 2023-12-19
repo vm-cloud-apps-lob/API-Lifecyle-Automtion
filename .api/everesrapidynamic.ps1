@@ -103,7 +103,7 @@ Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUr
 $accessToken = "SharedAccessSignature integration&20240118073923&P6+VKRXfPSViMi7drNM3Z+T8pxd8jRaFLiNMQsuW0XrDOo05d4tjA5lZsITpgpgv0tIuC5pbf2y7vScQelQT+Q=="
 
 # Publish the developer portal
-$uri = "https://$serviceName.developer.azure-api.net/publish"
+$uri = "https://everest-apim-demo.developer.azure-api.net/publish"
 $headers = @{
     "Authorization" = "SharedAccessSignature $accessToken"
     "Content-Type" = "application/json"
