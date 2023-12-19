@@ -85,7 +85,7 @@ Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolici
 Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
 # Set the desired backend URL
-$backendUrl = "https://everestbackoffice.purplestone-8fff94ef.eastus.azurecontainerapps.io"
+$backendUrl = "https://pa-submission-workflow-api.graycoast-ea31beda.eastus.azurecontainerapps.io"
 
 # Set the API context
 $apiContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
