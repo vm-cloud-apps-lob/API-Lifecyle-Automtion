@@ -105,14 +105,11 @@ $sasToken = "SharedAccessSignature integration&20240118073923&P6+VKRXfPSViMi7drN
 # Define the API endpoint for publishing
 $publishEndpoint = "https://everest-apim-demo.developer.azure-api.net/publish"
 
-# Set up headers with the SAS token
+# Assuming you have the SAS token in $sasToken variable
 $headers = @{
-    "Authorization" = $sasToken
-    "Content-Type"  = "application/json"
+    'Authorization' = $sasToken
+    'Content-Type'  = 'application/json'
 }
-
-# Make the HTTP request to trigger publishing
-$response = Invoke-RestMethod -Uri $publishEndpoint -Method Post -Headers $headers
 
 # Make the HTTP request to trigger publishing
 try {
@@ -124,14 +121,5 @@ catch {
     Write-Error "Error during publishing. Details: $errorMessage"
     exit 1
 }
-
-# Check the response
-if ($response -eq "OK") {
-    Write-Output "Publishing successful."
-} else {
-    Write-Error "Publishing failed. Response: $response"
-    exit 1
-}
-
 
 Write-Output "Script execution completed."
