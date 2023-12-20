@@ -104,7 +104,7 @@ $accessToken = "SharedAccessSignature integration&20240118073923&P6+VKRXfPSViMi7
  
 # Publish the developer portal
 $publishEndpoint = "https://everest-apim-demo.developer.azure-api.net"
-$uri = "$publishEndpoint"
+$uri = "$publishEndpoint/publish"
 $headers = @{
     "Authorization" = "SharedAccessSignature $accessToken"
     "Content-Type" = "application/json"
