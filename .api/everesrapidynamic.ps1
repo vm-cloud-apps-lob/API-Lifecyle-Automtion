@@ -78,9 +78,6 @@ $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName 
 # Read the policies content from your policy config file
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 
-# Set policies using Set-AzApiManagementPolicy
-Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
-
 # Associate the API with the existing product "Unlimited"
 Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
@@ -98,5 +95,8 @@ New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $a
 
 # Explicitly set the backend URL to ensure consistency
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
+
+# Set policies using Set-AzApiManagementPolicy
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
 
 Write-Output "Script execution completed."
