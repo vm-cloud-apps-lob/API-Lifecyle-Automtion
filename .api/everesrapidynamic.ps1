@@ -40,6 +40,12 @@ Write-Output "Importing API from OAS file..."
 # Create the API Management context
 $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName -ServiceName $apimName
 
+# Function to parse YAML content and extract the version
+function Get-YamlVersion($yamlContent) {
+    $yamlData = $yamlContent | ConvertFrom-Yaml
+    $version = $yamlData.info.version
+    return $version
+}
 # Get the version from the OAS file
 $oasVersion = Get-YamlVersion $oasContent
 
