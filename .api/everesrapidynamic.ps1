@@ -58,8 +58,7 @@ if ($oasVersion -match '^\d+\.\d+\.\d+$') {
     $minorVersion = [int]($oasVersion.Split('.')[1])
 
     if ($minorVersion -eq 0) {
-        # If minor version is 0, it's a major version change, create a new API
-        $apiName = "$oasTitle v$majorVersion"
+        $apiName = "$($oasTitle)_v$majorVersion" -replace '\s+', '_'  # Ensure no spaces in the identifier
         Write-Output "Creating a new API for version $oasVersion with name: $apiName"
         $api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
     } else {
