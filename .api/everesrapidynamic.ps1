@@ -47,10 +47,8 @@ function Get-YamlVersion($yamlContent) {
     return $version
 }
 
-# Get the title from the OAS file (assuming it's in YAML format)
-$oasContent = Get-Content -Path $oasFilePath -Raw
-$oasData = $oasContent | ConvertFrom-Yaml
-$oasTitle = $oasData.info.title
+# Get the version from the OAS file
+$oasVersion = Get-YamlVersion $oasContent
 
 # Check if the version follows the pattern of x.y.z (e.g., 1.0.0, 2.0.0, 1.0.1, etc.)
 if ($oasVersion -match '^\d+\.\d+\.\d+$') {
