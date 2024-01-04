@@ -46,6 +46,9 @@ function Get-YamlVersion($yamlContent) {
     $version = $yamlData.info.version
     return $version
 }
+# Read the content of the OAS file
+$oasContent = Get-Content -Path $oasFilePath -Raw
+
 # Get the version from the OAS file
 $oasVersion = Get-YamlVersion $oasContent
 
