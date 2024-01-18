@@ -47,40 +47,15 @@ function Get-YamlVersion($yamlContent) {
     return $version
 }
 
-
-# Function to check if it's a major version change
-function Is-MajorVersionChange($currentVersion, $newVersion) {
-    $currentVersionParts = $currentVersion -split '\.'
-    $newVersionParts = $newVersion -split '\.'
-
-    $currentMajor = [int]$currentVersionParts[0]
-    $newMajor = [int]$newVersionParts[0]
-
-    return $newMajor -gt $currentMajor
-}
-
-# Function to create a new API or revision based on version change
-function Create-ApiOrRevision($context, $apiId, $oasFilePath, $oasVersion) {
-    $apiRevision = $oasVersion -replace '\.', '-'
-
-    if (Is-MajorVersionChange -currentVersion $oasVersion -newVersion $apiRevision) {
-        # If it's a major version change, create a new API
-        $apiName = "$($oasTitle)_v$oasVersion" -replace '\s+', '_'  # Ensure no spaces in the identifier
-        Write-Output "Creating a new API for version $oasVersion with name: $apiName"
-        Import-AzApiManagementApi -Context $context -ApiId $apiName -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson
-    } else {
-        # If it's a minor version change, create a revision
-        Write-Output "Creating a revision for API version $oasVersion"
-        New-AzApiManagementApiRevision -Context $context -ApiId $apiId -ApiRevision $apiRevision
-    }
-}
-
 # Get the version from the OAS file (assuming it's in YAML format)
 $oasContent = Get-Content -Path $oasFilePath -Raw
 $oasVersion = Get-YamlVersion -yamlContent $oasContent
 
+# Replace dots with hyphens in the version for the API revision
+$apiRevision = $oasVersion -replace '\.', '-'
+
 # Import API using the local file path and specify the -ApiRevision parameter
-$api = Create-ApiOrRevision -context $apimContext -apiId $apiId -oasFilePath $oasFilePath -oasVersion $oasVersion
+$api = Import-AzApiManagementApi -Context $apimContext -ApiId $apiId -Path "/$apiName" -SpecificationPath $oasFilePath -SpecificationFormat OpenApiJson -ApiRevision $apiRevision
 
 # Check the result of API import
 if ($?) {
@@ -103,6 +78,9 @@ $apimContext = New-AzApiManagementContext -ResourceGroupName $resourceGroupName 
 # Read the policies content from your policy config file
 $apiPolicies = Get-Content -Path $apiPolicyConfigFilePath -Raw
 
+# Set policies using Set-AzApiManagementPolicy
+Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
+
 # Associate the API with the existing product "Unlimited"
 Add-AzApiManagementApiToProduct -Context $apimContext -ApiId $apiId -ProductId "Unlimited"
 
@@ -121,7 +99,16 @@ New-AzApiManagementApiRelease -Context $apiContext -ApiId $apiId -ApiRevision $a
 # Explicitly set the backend URL to ensure consistency
 Set-AzApiManagementApi -Context $apiContext -ApiId $apiId -ServiceUrl $backendUrl
 
-# Set policies using Set-AzApiManagementPolicy
-Set-AzApiManagementPolicy -Context $apimContext -ApiId $apiId -Policy $apiPolicies
+# Get the SAS token
+$accessToken = "SharedAccessSignature integration&20240118073923&P6+VKRXfPSViMi7drNM3Z+T8pxd8jRaFLiNMQsuW0XrDOo05d4tjA5lZsITpgpgv0tIuC5pbf2y7vScQelQT+Q=="
+ 
+# Publish the developer portal
+$publishEndpoint = "https://everest-apim-demo.developer.azure-api.net"
+$uri = "$publishEndpoint/publish"
+$headers = @{
+    "Authorization" = "SharedAccessSignature $accessToken"
+    "Content-Type" = "application/json"
+}
+Invoke-RestMethod -Uri $uri -Method POST -Headers $headers
 
 Write-Output "Script execution completed."
